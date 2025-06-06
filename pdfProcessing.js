@@ -13,9 +13,14 @@ export async function loadPdf() {
         const fileArrayBuffer = await file.arrayBuffer();
         globalPdfDoc = await PDFLib.PDFDocument.load(fileArrayBuffer);
         showMessage("PDF loaded successfully! Now generate a preview.");
-        generateThumbnails(globalPdfDoc);
+        await generateThumbnails(globalPdfDoc); // Added await here
     } catch (error) {
-        showError("Error loading PDF. Please make sure the file is a valid PDF.");
+        // More specific error message for PDF loading failures
+        if (error.message.includes("Invalid PDF structure") || error.name === "InvalidPDFException") {
+            showError("Failed to load PDF: The file appears to be corrupted or not a valid PDF. Please try a different file.");
+        } else {
+            showError("An unexpected error occurred while loading the PDF. Please ensure the file is a valid PDF.");
+        }
         console.error("Error loading PDF:", error);
     }
 }
@@ -173,7 +178,14 @@ export async function generatePreview() {
             }
         }
     } catch (error) {
-        showError("Error generating preview. Please try another file.");
+        // More specific error messages for preview generation
+        if (error.message.includes("getPage")) {
+            showError("Failed to get a page for preview. The PDF might be corrupted or the page number invalid.");
+        } else if (error.message.includes("render")) {
+            showError("Failed to render the page for preview. An internal error occurred.");
+        } else {
+            showError("Error generating preview. Please ensure the PDF is valid and not corrupted.");
+        }
         console.error("Error generating preview:", error);
     } finally {
         hideLoading(loading);
@@ -245,7 +257,14 @@ export async function convertToDarkMode() {
         downloadLink.style.display = "block";
         downloadLink.download = originalFileName;
     } catch (error) {
-        showError("Error converting to dark mode. Please try again.");
+        // Provide more specific feedback if possible, otherwise generic.
+        if (error.message.includes("PDFDocument.save")) {
+            showError("Failed to save the converted PDF. An internal error occurred.");
+        } else if (error.message.includes("embedPng")) {
+            showError("Failed to embed images into the new PDF. The images might be corrupted or in an unsupported format.");
+        } else {
+            showError("Error converting to dark mode. Please try again. The PDF might be incompatible or corrupted.");
+        }
         console.error("Error converting to dark mode:", error);
     } finally {
         hideLoading(loadingElement);
