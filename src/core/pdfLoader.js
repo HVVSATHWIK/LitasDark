@@ -64,7 +64,7 @@ export class PDFLoader {
     this.loadingCallbacks.delete(callback);
   }
 
-  private notifyLoadingComplete() {
+  notifyLoadingComplete() {
     this.loadingCallbacks.forEach(callback => {
       try {
         callback(this.currentDocument);
@@ -74,7 +74,7 @@ export class PDFLoader {
     });
   }
 
-  private handleLoadError(error) {
+  handleLoadError(error) {
     if (error.message.includes('Invalid PDF structure') || 
         error.name === 'InvalidPDFException') {
       throw new Error('The file appears to be corrupted or not a valid PDF. Please try a different file.');

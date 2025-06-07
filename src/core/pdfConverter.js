@@ -66,7 +66,7 @@ export class PDFConverter {
     this.progressCallbacks.delete(callback);
   }
 
-  private notifyProgress(current, total, message) {
+  notifyProgress(current, total, message) {
     this.progressCallbacks.forEach(callback => {
       try {
         callback(current, total, message);

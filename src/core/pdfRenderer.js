@@ -100,7 +100,7 @@ export class PDFRenderer {
     context.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
   }
 
-  private getThemeFillColor(theme) {
+  getThemeFillColor(theme) {
     const themeColors = {
       dark: 'white',
       darker: '#ccc',
@@ -109,11 +109,11 @@ export class PDFRenderer {
     return themeColors[theme] || 'white';
   }
 
-  private getCacheKey(pdfDoc, pageNumber, settings) {
+  getCacheKey(pdfDoc, pageNumber, settings) {
     return `${pdfDoc.getTitle() || 'untitled'}_${pageNumber}_${JSON.stringify(settings)}`;
   }
 
-  private cacheCanvas(key, canvas) {
+  cacheCanvas(key, canvas) {
     if (this.renderCache.size >= this.maxCacheSize) {
       const firstKey = this.renderCache.keys().next().value;
       this.renderCache.delete(firstKey);
@@ -121,7 +121,7 @@ export class PDFRenderer {
     this.renderCache.set(key, canvas);
   }
 
-  private createErrorThumbnail() {
+  createErrorThumbnail() {
     const canvas = document.createElement('canvas');
     canvas.width = 150;
     canvas.height = 200;
