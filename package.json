@@ -1,0 +1,17 @@
+{
+  "name": "litasdark-pdf-converter",
+  "version": "1.0.0",
+  "description": "PDF Dark Mode Converter",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
