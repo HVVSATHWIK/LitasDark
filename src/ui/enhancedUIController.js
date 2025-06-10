@@ -61,6 +61,9 @@ export class EnhancedUIController extends UIController {
     this.batchProcessor.onProgress((current, total, message) => {
       this.updateProgressBar(current, total, message);
     });
+    
+    // Initialize accessibility features
+    this.setupAccessibilityFeatures();
   }
 
   async handleBatchUpload(files) {
@@ -401,6 +404,41 @@ export class EnhancedUIController extends UIController {
   // Cleanup when page unloads
   cleanup() {
     this.ocrProcessor.terminate();
+  }
+  
+  setupAccessibilityFeatures() {
+    // Add keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+P for preview
+      if (e.ctrlKey && e.key === 'p' && !e.shiftKey) {
+        e.preventDefault();
+        document.getElementById('generatePreviewButton')?.click();
+      }
+      
+      // Ctrl+D for dark mode conversion
+      if (e.ctrlKey && e.key === 'd') {
+        e.preventDefault();
+        document.getElementById('convertButton')?.click();
+      }
+      
+      // Escape to close any modal
+      if (e.key === 'Escape') {
+        this.closeAllModals();
+      }
+    });
+    
+    // Improve focus management
+    const focusableElements = document.querySelectorAll('button, input, select, textarea, a[href]');
+    focusableElements.forEach(el => {
+      if (!el.getAttribute('aria-label') && !el.innerText) {
+        el.setAttribute('aria-label', el.id || el.name || 'Interactive element');
+      }
+    });
+  }
+  
+  closeAllModals() {
+    const modals = document.querySelectorAll('.modal.active');
+    modals.forEach(modal => modal.classList.remove('active'));
   }
 }
 

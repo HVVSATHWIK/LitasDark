@@ -36,6 +36,8 @@
             <button class="tab-button" data-tab="advanced">Advanced</button>
             <button class="tab-button" data-tab="batch">Batch Processing</button>
             <button class="tab-button" data-tab="ocr">Text Extraction</button>
+            <button class="tab-button" data-tab="annotation">Annotations</button>
+            <button class="tab-button" data-tab="comparison">Compare</button>
         </nav>
 
         <!-- Basic Tools Tab -->
@@ -188,6 +190,77 @@
                     <div id="searchResults"></div>
                 </div>
             </section>
+        </div>
+        
+        <!-- Annotation Tab -->
+        <div id="annotation" class="tab-content">
+          <section>
+            <h2>PDF Annotation</h2>
+            <p>Add annotations to your PDF in dark mode</p>
+            
+            <div class="annotation-tools">
+              <div class="tool-group">
+                <button id="penTool" class="tool-button active" aria-label="Pen Tool">
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                  </svg>
+                </button>
+                <button id="highlighterTool" class="tool-button" aria-label="Highlighter Tool">
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M18.5 1.15c-.53 0-1.04.19-1.43.58l-5.81 5.82 5.65 5.65 5.82-5.81c.77-.78.77-2.05 0-2.83l-2.84-2.84c-.39-.39-.89-.57-1.39-.57zm-7.24 7.41l-8.77 8.77c-.1.1-.15.22-.15.36v2.9c0 .28.22.5.5.5h2.9c.13 0 .26-.05.35-.15l8.77-8.77-3.6-3.61z"/>
+                  </svg>
+                </button>
+                <button id="textTool" class="tool-button" aria-label="Text Tool">
+                  <svg width="24" height="24" viewBox="0 0 24 24">
+                    <path d="M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z"/>
+                  </svg>
+                </button>
+              </div>
+              
+              <div class="color-picker">
+                <label for="annotationColor">Color:</label>
+                <input type="color" id="annotationColor" value="#FF5733">
+              </div>
+              
+              <div class="width-picker">
+                <label for="annotationWidth">Width:</label>
+                <input type="range" id="annotationWidth" min="1" max="10" value="2">
+              </div>
+              
+              <button id="clearAnnotations" class="danger-button">Clear All</button>
+              <button id="saveAnnotations">Save Annotations</button>
+            </div>
+            
+            <div class="annotation-canvas-container">
+              <canvas id="annotationCanvas"></canvas>
+            </div>
+          </section>
+        </div>
+
+        <!-- Comparison Tab -->
+        <div id="comparison" class="tab-content">
+          <section>
+            <h2>PDF Comparison</h2>
+            <p>Compare original and dark mode versions side by side</p>
+            
+            <div class="comparison-controls">
+              <button id="prevComparisonPage" aria-label="Previous Page">&lt;</button>
+              <span id="comparisonPageInfo">Page 1 of 1</span>
+              <button id="nextComparisonPage" aria-label="Next Page">&gt;</button>
+              <button id="generateComparisonPdf" class="primary-button">Generate Comparison PDF</button>
+            </div>
+            
+            <div class="comparison-container">
+              <div class="comparison-original">
+                <h3>Original</h3>
+                <div id="originalPdfContainer"></div>
+              </div>
+              <div class="comparison-converted">
+                <h3>Dark Mode</h3>
+                <div id="convertedPdfContainer"></div>
+              </div>
+            </div>
+          </section>
         </div>
         
         <div id="loading" class="hidden" role="status" aria-live="polite">
