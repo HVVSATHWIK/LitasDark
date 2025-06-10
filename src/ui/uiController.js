@@ -304,16 +304,46 @@ export class UIController {
   }
 
   downloadPDF(pdfBytes, filename, linkId = 'downloadLink') {
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const url = URL.createObjectURL(blob);
-    const downloadLink = document.getElementById(linkId);
-    
-    downloadLink.href = url;
-    downloadLink.download = filename;
-    downloadLink.style.display = 'block';
-    
-    // Clean up URL after download
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    try {
+      // Create blob with proper MIME type
+      const blob = new Blob([pdfBytes], { 
+        type: 'application/pdf'
+      });
+      
+      // Create download URL
+      const url = URL.createObjectURL(blob);
+      
+      // Create temporary download link
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.download = filename;
+      downloadLink.style.display = 'none';
+      
+      // Add to DOM, click, and remove
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      // Update the visible download link
+      const visibleLink = document.getElementById(linkId);
+      if (visibleLink) {
+        visibleLink.href = url;
+        visibleLink.download = filename;
+        visibleLink.style.display = 'block';
+        visibleLink.textContent = `Download ${filename}`;
+      }
+      
+      // Clean up URL after a delay
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 5000);
+      
+      showMessage(`${filename} is ready for download!`);
+      
+    } catch (error) {
+      console.error('Download error:', error);
+      showError('Failed to download PDF. Please try again.');
+    }
   }
 
   updateProgressBar(current, total, message) {
