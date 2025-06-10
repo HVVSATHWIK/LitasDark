@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Convert your PDF files to dark mode with LitasDark - the best PDF dark mode converter.">
-    <title>PDF Dark Mode Converter - LitasDark</title>
+    <meta name="description" content="Convert your PDF files to dark mode with LitasDark - the best PDF dark mode converter with advanced features.">
+    <title>LitasDark: Advanced PDF Converter & Processor</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="enhanced-styles.css">
     <link rel="icon" href="/favi.png">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js" defer></script>
     <script>
@@ -23,64 +24,171 @@
     <div id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
     
     <header>
-        <h1>LitasDark: PDF Dark Mode Converter</h1>
+        <h1>LitasDark: Advanced PDF Converter</h1>
+        <p class="subtitle">Dark Mode Conversion • OCR • Batch Processing • Watermarks</p>
         <img src="/pdfdark.jpg" alt="LitasDark Logo" id="logo">
     </header>
     
     <main class="main-glass">
-        <section>
-            <label for="pdfUpload">Upload PDF:</label>
-            <input type="file" id="pdfUpload" accept="application/pdf" aria-label="Upload PDF">
-        </section>
-        
-        <section id="themeSettings" role="region" aria-labelledby="themeSettingsLabel">
-            <h2 id="themeSettingsLabel">Theme Settings</h2>
-            <label for="themeSelect">Choose Theme:</label>
-            <select id="themeSelect" aria-label="Theme Selection">
-                <option value="dark">Dark</option>
-                <option value="darker">Darker</option>
-                <option value="darkest">Darkest</option>
-            </select>
-            <label for="brightness">Brightness:</label>
-            <input type="range" id="brightness" min="50" max="150" value="100">
-            <label for="contrast">Contrast:</label>
-            <input type="range" id="contrast" min="50" max="150" value="100">
-        </section>
-        
-        <section>
-            <button id="generatePreviewButton">Generate Preview</button>
-            <div id="preview">
-                <div id="thumbnails"></div>
-                <canvas id="previewCanvas" aria-label="PDF Preview"></canvas>
-            </div>
-            <button id="convertButton">Convert to Dark Mode</button>
-            <a id="downloadLink" href="#" download="dark-mode.pdf" style="display: none;">Download Converted PDF</a>
-        </section>
-        
-        <section>
-            <label for="startPage">Start Page:</label>
-            <input type="number" id="startPage" min="1" aria-label="Start Page">
-            <label for="endPage">End Page:</label>
-            <input type="number" id="endPage" min="1" aria-label="End Page">
-            <button id="splitButton">Split PDF</button>
-            <a id="splitDownloadLink" href="#" download="split_pdf.pdf" style="display: none;">Download Split PDF</a>
-        </section>
-        
-        <section>
-            <label for="pdfFiles">Upload PDFs to Merge:</label>
-            <input type="file" id="pdfFiles" accept="application/pdf" multiple aria-label="Upload PDFs">
-            <button id="mergeButton">Merge PDFs</button>
-            <a id="mergeDownloadLink" href="#" download="merged_pdf.pdf" style="display: none;">Download Merged PDF</a>
-        </section>
-        
-        <section>
-            <label for="rotatePageNumber">Page Number:</label>
-            <input type="number" id="rotatePageNumber" min="1" aria-label="Page Number">
-            <label for="rotateAngle">Angle:</label>
-            <input type="number" id="rotateAngle" step="90" min="0" max="270" aria-label="Rotation Angle">
-            <button id="rotateButton">Rotate Page</button>
-            <a id="rotateDownloadLink" href="#" download="rotated_pdf.pdf" style="display: none;">Download Rotated PDF</a>
-        </section>
+        <!-- Navigation Tabs -->
+        <nav class="feature-tabs">
+            <button class="tab-button active" data-tab="basic">Basic Tools</button>
+            <button class="tab-button" data-tab="advanced">Advanced</button>
+            <button class="tab-button" data-tab="batch">Batch Processing</button>
+            <button class="tab-button" data-tab="ocr">Text Extraction</button>
+        </nav>
+
+        <!-- Basic Tools Tab -->
+        <div id="basic" class="tab-content active">
+            <section>
+                <label for="pdfUpload">Upload PDF:</label>
+                <input type="file" id="pdfUpload" accept="application/pdf" aria-label="Upload PDF">
+            </section>
+            
+            <section id="themeSettings" role="region" aria-labelledby="themeSettingsLabel">
+                <h2 id="themeSettingsLabel">Theme Settings</h2>
+                <label for="themeSelect">Choose Theme:</label>
+                <select id="themeSelect" aria-label="Theme Selection">
+                    <option value="dark">Dark</option>
+                    <option value="darker">Darker</option>
+                    <option value="darkest">Darkest</option>
+                </select>
+                <label for="brightness">Brightness:</label>
+                <input type="range" id="brightness" min="50" max="150" value="100">
+                <label for="contrast">Contrast:</label>
+                <input type="range" id="contrast" min="50" max="150" value="100">
+            </section>
+            
+            <section>
+                <button id="generatePreviewButton">Generate Preview</button>
+                <div id="preview">
+                    <div id="thumbnails"></div>
+                    <canvas id="previewCanvas" aria-label="PDF Preview"></canvas>
+                </div>
+                <button id="convertButton">Convert to Dark Mode</button>
+                <a id="downloadLink" href="#" download="dark-mode.pdf" style="display: none;">Download Converted PDF</a>
+            </section>
+            
+            <section>
+                <h3>PDF Operations</h3>
+                <div class="operation-grid">
+                    <div>
+                        <label for="startPage">Start Page:</label>
+                        <input type="number" id="startPage" min="1" aria-label="Start Page">
+                        <label for="endPage">End Page:</label>
+                        <input type="number" id="endPage" min="1" aria-label="End Page">
+                        <button id="splitButton">Split PDF</button>
+                        <a id="splitDownloadLink" href="#" download="split_pdf.pdf" style="display: none;">Download Split PDF</a>
+                    </div>
+                    
+                    <div>
+                        <label for="pdfFiles">Upload PDFs to Merge:</label>
+                        <input type="file" id="pdfFiles" accept="application/pdf" multiple aria-label="Upload PDFs">
+                        <button id="mergeButton">Merge PDFs</button>
+                        <a id="mergeDownloadLink" href="#" download="merged_pdf.pdf" style="display: none;">Download Merged PDF</a>
+                    </div>
+                    
+                    <div>
+                        <label for="rotatePageNumber">Page Number:</label>
+                        <input type="number" id="rotatePageNumber" min="1" aria-label="Page Number">
+                        <label for="rotateAngle">Angle:</label>
+                        <input type="number" id="rotateAngle" step="90" min="0" max="270" aria-label="Rotation Angle">
+                        <button id="rotateButton">Rotate Page</button>
+                        <a id="rotateDownloadLink" href="#" download="rotated_pdf.pdf" style="display: none;">Download Rotated PDF</a>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Advanced Tools Tab -->
+        <div id="advanced" class="tab-content">
+            <section>
+                <h3>Document Information</h3>
+                <button id="showInfoButton">Show Document Info</button>
+                <div id="documentInfo"></div>
+            </section>
+
+            <section>
+                <h3>Watermark</h3>
+                <div class="watermark-controls">
+                    <label for="watermarkText">Watermark Text:</label>
+                    <input type="text" id="watermarkText" placeholder="Enter watermark text">
+                    
+                    <label for="watermarkOpacity">Opacity:</label>
+                    <input type="range" id="watermarkOpacity" min="0.1" max="1" step="0.1" value="0.3">
+                    
+                    <label for="watermarkRotation">Rotation:</label>
+                    <input type="range" id="watermarkRotation" min="0" max="360" step="15" value="45">
+                    
+                    <label for="watermarkSize">Font Size:</label>
+                    <input type="range" id="watermarkSize" min="20" max="100" step="5" value="50">
+                    
+                    <label for="watermarkPosition">Position:</label>
+                    <select id="watermarkPosition">
+                        <option value="center">Center</option>
+                        <option value="top-left">Top Left</option>
+                        <option value="top-right">Top Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                        <option value="bottom-right">Bottom Right</option>
+                    </select>
+                    
+                    <button id="addWatermarkButton">Add Watermark</button>
+                </div>
+            </section>
+
+            <section>
+                <h3>PDF Optimization</h3>
+                <div class="optimization-controls">
+                    <button id="compressButton">Compress PDF</button>
+                    <button id="removeMetadataButton">Remove Metadata</button>
+                </div>
+            </section>
+        </div>
+
+        <!-- Batch Processing Tab -->
+        <div id="batch" class="tab-content">
+            <section>
+                <h3>Batch Processing</h3>
+                <label for="batchUpload">Upload Multiple PDFs:</label>
+                <input type="file" id="batchUpload" accept="application/pdf" multiple aria-label="Upload Multiple PDFs">
+                
+                <div class="batch-settings">
+                    <h4>Batch Operations</h4>
+                    <label>
+                        <input type="checkbox" id="batchDarkMode"> Convert to Dark Mode
+                    </label>
+                    <label>
+                        <input type="checkbox" id="batchWatermark"> Add Watermark
+                        <input type="text" id="batchWatermarkText" placeholder="Watermark text">
+                    </label>
+                    <label>
+                        <input type="checkbox" id="batchRemoveMetadata"> Remove Metadata
+                    </label>
+                    <label>
+                        <input type="checkbox" id="batchCompress"> Compress PDFs
+                    </label>
+                </div>
+                
+                <button id="startBatchButton">Start Batch Processing</button>
+                <div id="batchStatus"></div>
+            </section>
+        </div>
+
+        <!-- OCR Tab -->
+        <div id="ocr" class="tab-content">
+            <section>
+                <h3>Text Extraction (OCR)</h3>
+                <button id="extractTextButton">Extract Text from PDF</button>
+                <div id="ocrResults"></div>
+                
+                <div class="search-controls">
+                    <h4>Search in Extracted Text</h4>
+                    <input type="text" id="searchText" placeholder="Enter search term">
+                    <button id="searchTextButton">Search</button>
+                    <div id="searchResults"></div>
+                </div>
+            </section>
+        </div>
         
         <div id="loading" class="hidden" role="status" aria-live="polite">
             <div class="spinner"></div>
@@ -90,6 +198,7 @@
     
     <footer>
         <p>&copy; 2024 LitasDark. All rights reserved.</p>
+        <p class="version">Version 2.0 - Enhanced Edition</p>
     </footer>
     
     <a href="#" id="backToTop" aria-label="Back to Top">↑</a>
@@ -99,6 +208,26 @@
     <script type="module" src="src/main.js" defer></script>
 
     <script>
+        // Tab functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-button');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.dataset.tab;
+                    
+                    // Remove active class from all tabs and contents
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    button.classList.add('active');
+                    document.getElementById(targetTab).classList.add('active');
+                });
+            });
+        });
+
         // Initialize particles.js
         if (typeof particlesJS !== 'undefined') {
             particlesJS('particles-js', {

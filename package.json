@@ -1,7 +1,7 @@
 {
   "name": "litasdark-pdf-converter",
-  "version": "1.0.0",
-  "description": "PDF Dark Mode Converter",
+  "version": "2.0.0",
+  "description": "Advanced PDF Dark Mode Converter with Enhanced Features",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -9,7 +9,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "pdf-lib": "^1.17.1"
+    "pdf-lib": "^1.17.1",
+    "tesseract.js": "^5.0.4"
   },
   "devDependencies": {
     "vite": "^5.0.0"
