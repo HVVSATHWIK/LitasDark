@@ -2,287 +2,571 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="description" content="Convert your PDF files to dark mode with LitasDark - the best PDF dark mode converter with advanced features.">
+    <meta name="theme-color" content="#6200ea">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="LitasDark">
+    
     <title>LitasDark: Advanced PDF Converter & Processor</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" href="/favi.png">
+    <link rel="apple-touch-icon" href="/favi.png">
+    
+    <!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="enhanced-styles.css">
-    <link rel="icon" href="/favi.png">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js" defer></script>
+    <link rel="stylesheet" href="src/styles/mobile.css">
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js" as="script">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" as="script">
+    
+    <!-- PDF.js Setup -->
     <script>
+        window.pdfjsLib = window.pdfjsLib || {};
         if (typeof pdfjsLib !== 'undefined') {
             pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.worker.min.js';
         }
-    </script>  
+    </script>
+    
+    <!-- External Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.9.359/pdf.min.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js" defer></script>
 </head>
 <body>
+    <!-- Error Container -->
     <div id="errorContainer" role="alert" aria-live="assertive" style="display:none; color: red;"></div>
+    
+    <!-- Background -->
     <div id="particles-js" class="animated-gradient-background"></div>
     
     <!-- Progress Bar -->
-    <div id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    <div id="progressBar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Processing progress"></div>
     
+    <!-- Header -->
     <header>
         <h1>LitasDark: Advanced PDF Converter</h1>
         <p class="subtitle">Dark Mode Conversion • OCR • Batch Processing • Watermarks</p>
         <img src="/pdfdark.jpg" alt="LitasDark Logo" id="logo">
     </header>
     
-    <main class="main-glass">
+    <!-- Main Content -->
+    <main class="main-glass" role="main">
+        <!-- Mobile Navigation Toggle -->
+        <button class="mobile-nav-toggle" aria-label="Toggle navigation" style="display: none;">
+            <span></span>
+        </button>
+        
         <!-- Navigation Tabs -->
-        <nav class="feature-tabs">
-            <button class="tab-button active" data-tab="basic">Basic Tools</button>
-            <button class="tab-button" data-tab="advanced">Advanced</button>
-            <button class="tab-button" data-tab="batch">Batch Processing</button>
-            <button class="tab-button" data-tab="ocr">Text Extraction</button>
-            <button class="tab-button" data-tab="annotation">Annotations</button>
-            <button class="tab-button" data-tab="comparison">Compare</button>
+        <nav class="feature-tabs" role="navigation" aria-label="Feature navigation">
+            <button class="tab-button active" data-tab="basic" role="tab" aria-selected="true" aria-controls="basic">Basic Tools</button>
+            <button class="tab-button" data-tab="advanced" role="tab" aria-selected="false" aria-controls="advanced">Advanced</button>
+            <button class="tab-button" data-tab="batch" role="tab" aria-selected="false" aria-controls="batch">Batch Processing</button>
+            <button class="tab-button" data-tab="ocr" role="tab" aria-selected="false" aria-controls="ocr">Text Extraction</button>
+            <button class="tab-button" data-tab="annotation" role="tab" aria-selected="false" aria-controls="annotation">Annotations</button>
+            <button class="tab-button" data-tab="comparison" role="tab" aria-selected="false" aria-controls="comparison">Compare</button>
         </nav>
 
         <!-- Basic Tools Tab -->
-        <div id="basic" class="tab-content active">
+        <div id="basic" class="tab-content active" role="tabpanel" aria-labelledby="basic-tab">
             <section>
                 <label for="pdfUpload">Upload PDF:</label>
-                <input type="file" id="pdfUpload" accept="application/pdf" aria-label="Upload PDF">
+                <input type="file" id="pdfUpload" accept="application/pdf,.pdf" aria-label="Upload PDF file">
+                <div class="file-drop-zone" id="fileDropZone">
+                    <div class="drop-zone-content">
+                        <div class="upload-icon">📁</div>
+                        <p>Drag and drop your PDF here or click to browse</p>
+                        <small>Supports files up to 50MB</small>
+                    </div>
+                </div>
             </section>
             
             <section id="themeSettings" role="region" aria-labelledby="themeSettingsLabel">
                 <h2 id="themeSettingsLabel">Theme Settings</h2>
-                <label for="themeSelect">Choose Theme:</label>
-                <select id="themeSelect" aria-label="Theme Selection">
-                    <option value="dark">Dark</option>
-                    <option value="darker">Darker</option>
-                    <option value="darkest">Darkest</option>
-                </select>
-                <label for="brightness">Brightness:</label>
-                <input type="range" id="brightness" min="50" max="150" value="100">
-                <label for="contrast">Contrast:</label>
-                <input type="range" id="contrast" min="50" max="150" value="100">
+                <div class="theme-grid">
+                    <div class="form-control">
+                        <label for="themeSelect">Choose Theme:</label>
+                        <select id="themeSelect" aria-label="Theme Selection">
+                            <option value="dark">Dark</option>
+                            <option value="darker">Darker</option>
+                            <option value="darkest">Darkest</option>
+                            <option value="sepia">Sepia</option>
+                            <option value="blue-light">Blue Light Filter</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-control">
+                        <label for="brightness">Brightness: <span id="brightnessValue">100</span>%</label>
+                        <input type="range" id="brightness" min="50" max="150" value="100" aria-label="Brightness adjustment">
+                    </div>
+                    
+                    <div class="form-control">
+                        <label for="contrast">Contrast: <span id="contrastValue">100</span>%</label>
+                        <input type="range" id="contrast" min="50" max="150" value="100" aria-label="Contrast adjustment">
+                    </div>
+                    
+                    <div class="custom-theme-controls" id="customThemeControls" style="display: none;">
+                        <div class="form-control">
+                            <label for="customBackground">Background Color:</label>
+                            <input type="color" id="customBackground" value="#121212">
+                        </div>
+                        <div class="form-control">
+                            <label for="customText">Text Color:</label>
+                            <input type="color" id="customText" value="#ffffff">
+                        </div>
+                        <div class="form-control">
+                            <label for="customAccent">Accent Color:</label>
+                            <input type="color" id="customAccent" value="#6200ea">
+                        </div>
+                    </div>
+                </div>
             </section>
             
             <section>
-                <button id="generatePreviewButton">Generate Preview</button>
-                <div id="preview">
-                    <div id="thumbnails"></div>
-                    <canvas id="previewCanvas" aria-label="PDF Preview"></canvas>
+                <div class="action-buttons">
+                    <button id="generatePreviewButton" class="primary-button">
+                        <span class="button-icon">👁️</span>
+                        Generate Preview
+                    </button>
+                    <button id="convertButton" class="primary-button">
+                        <span class="button-icon">🌙</span>
+                        Convert to Dark Mode
+                    </button>
                 </div>
-                <button id="convertButton">Convert to Dark Mode</button>
-                <a id="downloadLink" href="#" download="dark-mode.pdf" style="display: none;">Download Converted PDF</a>
+                
+                <div id="preview" style="display: none;">
+                    <div class="preview-header">
+                        <h3>Preview</h3>
+                        <div class="preview-controls">
+                            <button id="zoomOut" aria-label="Zoom out">-</button>
+                            <span id="zoomLevel">100%</span>
+                            <button id="zoomIn" aria-label="Zoom in">+</button>
+                            <button id="resetZoom" aria-label="Reset zoom">Reset</button>
+                        </div>
+                    </div>
+                    <div id="thumbnails" class="thumbnails-container" role="list" aria-label="Page thumbnails"></div>
+                    <div class="preview-container">
+                        <canvas id="previewCanvas" aria-label="PDF Preview"></canvas>
+                    </div>
+                </div>
+                
+                <a id="downloadLink" href="#" download="dark-mode.pdf" style="display: none;" class="download-button">
+                    <span class="button-icon">⬇️</span>
+                    Download Converted PDF
+                </a>
             </section>
             
             <section>
                 <h3>PDF Operations</h3>
                 <div class="operation-grid">
-                    <div>
-                        <label for="startPage">Start Page:</label>
-                        <input type="number" id="startPage" min="1" aria-label="Start Page">
-                        <label for="endPage">End Page:</label>
-                        <input type="number" id="endPage" min="1" aria-label="End Page">
-                        <button id="splitButton">Split PDF</button>
-                        <a id="splitDownloadLink" href="#" download="split_pdf.pdf" style="display: none;">Download Split PDF</a>
+                    <div class="operation-card">
+                        <h4>Split PDF</h4>
+                        <div class="form-control">
+                            <label for="startPage">Start Page:</label>
+                            <input type="number" id="startPage" min="1" aria-label="Start Page">
+                        </div>
+                        <div class="form-control">
+                            <label for="endPage">End Page:</label>
+                            <input type="number" id="endPage" min="1" aria-label="End Page">
+                        </div>
+                        <button id="splitButton" class="secondary-button">Split PDF</button>
+                        <a id="splitDownloadLink" href="#" download="split_pdf.pdf" style="display: none;" class="download-link">Download Split PDF</a>
                     </div>
                     
-                    <div>
-                        <label for="pdfFiles">Upload PDFs to Merge:</label>
-                        <input type="file" id="pdfFiles" accept="application/pdf" multiple aria-label="Upload PDFs">
-                        <button id="mergeButton">Merge PDFs</button>
-                        <a id="mergeDownloadLink" href="#" download="merged_pdf.pdf" style="display: none;">Download Merged PDF</a>
+                    <div class="operation-card">
+                        <h4>Merge PDFs</h4>
+                        <div class="form-control">
+                            <label for="pdfFiles">Upload PDFs to Merge:</label>
+                            <input type="file" id="pdfFiles" accept="application/pdf,.pdf" multiple aria-label="Upload PDFs to merge">
+                        </div>
+                        <button id="mergeButton" class="secondary-button">Merge PDFs</button>
+                        <a id="mergeDownloadLink" href="#" download="merged_pdf.pdf" style="display: none;" class="download-link">Download Merged PDF</a>
                     </div>
                     
-                    <div>
-                        <label for="rotatePageNumber">Page Number:</label>
-                        <input type="number" id="rotatePageNumber" min="1" aria-label="Page Number">
-                        <label for="rotateAngle">Angle:</label>
-                        <input type="number" id="rotateAngle" step="90" min="0" max="270" aria-label="Rotation Angle">
-                        <button id="rotateButton">Rotate Page</button>
-                        <a id="rotateDownloadLink" href="#" download="rotated_pdf.pdf" style="display: none;">Download Rotated PDF</a>
+                    <div class="operation-card">
+                        <h4>Rotate Page</h4>
+                        <div class="form-control">
+                            <label for="rotatePageNumber">Page Number:</label>
+                            <input type="number" id="rotatePageNumber" min="1" aria-label="Page Number">
+                        </div>
+                        <div class="form-control">
+                            <label for="rotateAngle">Angle:</label>
+                            <select id="rotateAngle" aria-label="Rotation Angle">
+                                <option value="90">90°</option>
+                                <option value="180">180°</option>
+                                <option value="270">270°</option>
+                            </select>
+                        </div>
+                        <button id="rotateButton" class="secondary-button">Rotate Page</button>
+                        <a id="rotateDownloadLink" href="#" download="rotated_pdf.pdf" style="display: none;" class="download-link">Download Rotated PDF</a>
                     </div>
                 </div>
             </section>
         </div>
 
         <!-- Advanced Tools Tab -->
-        <div id="advanced" class="tab-content">
+        <div id="advanced" class="tab-content" role="tabpanel" aria-labelledby="advanced-tab">
             <section>
                 <h3>Document Information</h3>
-                <button id="showInfoButton">Show Document Info</button>
-                <div id="documentInfo"></div>
+                <button id="showInfoButton" class="info-button">Show Document Info</button>
+                <div id="documentInfo" class="document-info-container"></div>
             </section>
 
             <section>
                 <h3>Watermark</h3>
                 <div class="watermark-controls">
-                    <label for="watermarkText">Watermark Text:</label>
-                    <input type="text" id="watermarkText" placeholder="Enter watermark text">
+                    <div class="form-control">
+                        <label for="watermarkText">Watermark Text:</label>
+                        <input type="text" id="watermarkText" placeholder="Enter watermark text">
+                    </div>
                     
-                    <label for="watermarkOpacity">Opacity:</label>
-                    <input type="range" id="watermarkOpacity" min="0.1" max="1" step="0.1" value="0.3">
+                    <div class="form-control">
+                        <label for="watermarkOpacity">Opacity: <span id="watermarkOpacityValue">30</span>%</label>
+                        <input type="range" id="watermarkOpacity" min="10" max="100" step="10" value="30">
+                    </div>
                     
-                    <label for="watermarkRotation">Rotation:</label>
-                    <input type="range" id="watermarkRotation" min="0" max="360" step="15" value="45">
+                    <div class="form-control">
+                        <label for="watermarkRotation">Rotation: <span id="watermarkRotationValue">45</span>°</label>
+                        <input type="range" id="watermarkRotation" min="0" max="360" step="15" value="45">
+                    </div>
                     
-                    <label for="watermarkSize">Font Size:</label>
-                    <input type="range" id="watermarkSize" min="20" max="100" step="5" value="50">
+                    <div class="form-control">
+                        <label for="watermarkSize">Font Size: <span id="watermarkSizeValue">50</span>px</label>
+                        <input type="range" id="watermarkSize" min="20" max="100" step="5" value="50">
+                    </div>
                     
-                    <label for="watermarkPosition">Position:</label>
-                    <select id="watermarkPosition">
-                        <option value="center">Center</option>
-                        <option value="top-left">Top Left</option>
-                        <option value="top-right">Top Right</option>
-                        <option value="bottom-left">Bottom Left</option>
-                        <option value="bottom-right">Bottom Right</option>
-                    </select>
+                    <div class="form-control">
+                        <label for="watermarkPosition">Position:</label>
+                        <select id="watermarkPosition">
+                            <option value="center">Center</option>
+                            <option value="top-left">Top Left</option>
+                            <option value="top-right">Top Right</option>
+                            <option value="bottom-left">Bottom Left</option>
+                            <option value="bottom-right">Bottom Right</option>
+                        </select>
+                    </div>
                     
-                    <button id="addWatermarkButton">Add Watermark</button>
+                    <div class="form-control">
+                        <label for="watermarkColor">Color:</label>
+                        <input type="color" id="watermarkColor" value="#808080">
+                    </div>
+                    
+                    <button id="addWatermarkButton" class="primary-button">Add Watermark</button>
                 </div>
             </section>
 
             <section>
                 <h3>PDF Optimization</h3>
                 <div class="optimization-controls">
-                    <button id="compressButton">Compress PDF</button>
-                    <button id="removeMetadataButton">Remove Metadata</button>
+                    <button id="compressButton" class="secondary-button">
+                        <span class="button-icon">🗜️</span>
+                        Compress PDF
+                    </button>
+                    <button id="removeMetadataButton" class="secondary-button">
+                        <span class="button-icon">🧹</span>
+                        Remove Metadata
+                    </button>
+                    <button id="optimizeImagesButton" class="secondary-button">
+                        <span class="button-icon">🖼️</span>
+                        Optimize Images
+                    </button>
                 </div>
             </section>
         </div>
 
         <!-- Batch Processing Tab -->
-        <div id="batch" class="tab-content">
+        <div id="batch" class="tab-content" role="tabpanel" aria-labelledby="batch-tab">
             <section>
                 <h3>Batch Processing</h3>
-                <label for="batchUpload">Upload Multiple PDFs:</label>
-                <input type="file" id="batchUpload" accept="application/pdf" multiple aria-label="Upload Multiple PDFs">
+                <div class="form-control">
+                    <label for="batchUpload">Upload Multiple PDFs:</label>
+                    <input type="file" id="batchUpload" accept="application/pdf,.pdf" multiple aria-label="Upload Multiple PDFs">
+                </div>
                 
                 <div class="batch-settings">
                     <h4>Batch Operations</h4>
-                    <label>
-                        <input type="checkbox" id="batchDarkMode"> Convert to Dark Mode
-                    </label>
-                    <label>
-                        <input type="checkbox" id="batchWatermark"> Add Watermark
-                        <input type="text" id="batchWatermarkText" placeholder="Watermark text">
-                    </label>
-                    <label>
-                        <input type="checkbox" id="batchRemoveMetadata"> Remove Metadata
-                    </label>
-                    <label>
-                        <input type="checkbox" id="batchCompress"> Compress PDFs
-                    </label>
+                    <div class="batch-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="batchDarkMode">
+                            <span class="checkmark"></span>
+                            Convert to Dark Mode
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="batchWatermark">
+                            <span class="checkmark"></span>
+                            Add Watermark
+                            <input type="text" id="batchWatermarkText" placeholder="Watermark text" class="inline-input">
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="batchRemoveMetadata">
+                            <span class="checkmark"></span>
+                            Remove Metadata
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="batchCompress">
+                            <span class="checkmark"></span>
+                            Compress PDFs
+                        </label>
+                    </div>
                 </div>
                 
-                <button id="startBatchButton">Start Batch Processing</button>
-                <div id="batchStatus"></div>
+                <button id="startBatchButton" class="primary-button">
+                    <span class="button-icon">⚡</span>
+                    Start Batch Processing
+                </button>
+                
+                <div id="batchStatus" class="batch-status-container"></div>
+                
+                <div id="batchProgress" class="batch-progress" style="display: none;">
+                    <div class="progress-header">
+                        <h4>Processing Files</h4>
+                        <span id="batchProgressText">0 of 0 files processed</span>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div id="batchProgressBar" class="progress-bar"></div>
+                    </div>
+                    <div id="batchFileList" class="batch-file-list"></div>
+                </div>
             </section>
         </div>
 
         <!-- OCR Tab -->
-        <div id="ocr" class="tab-content">
+        <div id="ocr" class="tab-content" role="tabpanel" aria-labelledby="ocr-tab">
             <section>
                 <h3>Text Extraction (OCR)</h3>
-                <button id="extractTextButton">Extract Text from PDF</button>
-                <div id="ocrResults"></div>
+                <div class="ocr-controls">
+                    <button id="extractTextButton" class="primary-button">
+                        <span class="button-icon">📝</span>
+                        Extract Text from PDF
+                    </button>
+                    <div class="ocr-options">
+                        <label for="ocrLanguage">Language:</label>
+                        <select id="ocrLanguage">
+                            <option value="eng">English</option>
+                            <option value="spa">Spanish</option>
+                            <option value="fra">French</option>
+                            <option value="deu">German</option>
+                            <option value="ita">Italian</option>
+                            <option value="por">Portuguese</option>
+                            <option value="rus">Russian</option>
+                            <option value="chi_sim">Chinese (Simplified)</option>
+                            <option value="jpn">Japanese</option>
+                            <option value="kor">Korean</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div id="ocrResults" class="ocr-results-container"></div>
                 
                 <div class="search-controls">
                     <h4>Search in Extracted Text</h4>
-                    <input type="text" id="searchText" placeholder="Enter search term">
-                    <button id="searchTextButton">Search</button>
-                    <div id="searchResults"></div>
+                    <div class="search-input-group">
+                        <input type="text" id="searchText" placeholder="Enter search term" aria-label="Search text">
+                        <button id="searchTextButton" class="search-button">
+                            <span class="button-icon">🔍</span>
+                            Search
+                        </button>
+                    </div>
+                    <div class="search-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="caseSensitive">
+                            <span class="checkmark"></span>
+                            Case sensitive
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="wholeWords">
+                            <span class="checkmark"></span>
+                            Whole words only
+                        </label>
+                    </div>
+                    <div id="searchResults" class="search-results-container"></div>
                 </div>
             </section>
         </div>
         
         <!-- Annotation Tab -->
-        <div id="annotation" class="tab-content">
-          <section>
-            <h2>PDF Annotation</h2>
-            <p>Add annotations to your PDF in dark mode</p>
-            
-            <div class="annotation-tools">
-              <div class="tool-group">
-                <button id="penTool" class="tool-button active" aria-label="Pen Tool">
-                  <svg width="24" height="24" viewBox="0 0 24 24">
-                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
-                  </svg>
-                </button>
-                <button id="highlighterTool" class="tool-button" aria-label="Highlighter Tool">
-                  <svg width="24" height="24" viewBox="0 0 24 24">
-                    <path d="M18.5 1.15c-.53 0-1.04.19-1.43.58l-5.81 5.82 5.65 5.65 5.82-5.81c.77-.78.77-2.05 0-2.83l-2.84-2.84c-.39-.39-.89-.57-1.39-.57zm-7.24 7.41l-8.77 8.77c-.1.1-.15.22-.15.36v2.9c0 .28.22.5.5.5h2.9c.13 0 .26-.05.35-.15l8.77-8.77-3.6-3.61z"/>
-                  </svg>
-                </button>
-                <button id="textTool" class="tool-button" aria-label="Text Tool">
-                  <svg width="24" height="24" viewBox="0 0 24 24">
-                    <path d="M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z"/>
-                  </svg>
-                </button>
-              </div>
-              
-              <div class="color-picker">
-                <label for="annotationColor">Color:</label>
-                <input type="color" id="annotationColor" value="#FF5733">
-              </div>
-              
-              <div class="width-picker">
-                <label for="annotationWidth">Width:</label>
-                <input type="range" id="annotationWidth" min="1" max="10" value="2">
-              </div>
-              
-              <button id="clearAnnotations" class="danger-button">Clear All</button>
-              <button id="saveAnnotations">Save Annotations</button>
-            </div>
-            
-            <div class="annotation-canvas-container">
-              <canvas id="annotationCanvas"></canvas>
-            </div>
-          </section>
+        <div id="annotation" class="tab-content" role="tabpanel" aria-labelledby="annotation-tab">
+            <section>
+                <h2>PDF Annotation</h2>
+                <p>Add annotations to your PDF in dark mode</p>
+                
+                <div class="annotation-tools">
+                    <div class="tool-group">
+                        <button id="penTool" class="tool-button active" aria-label="Pen Tool" data-tool="pen">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                            </svg>
+                        </button>
+                        <button id="highlighterTool" class="tool-button" aria-label="Highlighter Tool" data-tool="highlighter">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M18.5 1.15c-.53 0-1.04.19-1.43.58l-5.81 5.82 5.65 5.65 5.82-5.81c.77-.78.77-2.05 0-2.83l-2.84-2.84c-.39-.39-.89-.57-1.39-.57zm-7.24 7.41l-8.77 8.77c-.1.1-.15.22-.15.36v2.9c0 .28.22.5.5.5h2.9c.13 0 .26-.05.35-.15l8.77-8.77-3.6-3.61z"/>
+                            </svg>
+                        </button>
+                        <button id="textTool" class="tool-button" aria-label="Text Tool" data-tool="text">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z"/>
+                            </svg>
+                        </button>
+                        <button id="eraserTool" class="tool-button" aria-label="Eraser Tool" data-tool="eraser">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M16.24 3.56l4.95 4.94c.78.79.78 2.05 0 2.84L12 20.53a4.008 4.008 0 0 1-5.66 0L2.81 17c-.78-.79-.78-2.05 0-2.84l10.6-10.6c.79-.78 2.05-.78 2.83 0M4.22 15.58l3.54 3.53c.78.79 2.04.79 2.83 0l3.53-3.53-6.36-6.36-3.54 3.53z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="annotation-properties">
+                        <div class="color-picker">
+                            <label for="annotationColor">Color:</label>
+                            <input type="color" id="annotationColor" value="#FF5733">
+                        </div>
+                        
+                        <div class="width-picker">
+                            <label for="annotationWidth">Width: <span id="annotationWidthValue">2</span>px</label>
+                            <input type="range" id="annotationWidth" min="1" max="20" value="2">
+                        </div>
+                        
+                        <div class="opacity-picker">
+                            <label for="annotationOpacity">Opacity: <span id="annotationOpacityValue">100</span>%</label>
+                            <input type="range" id="annotationOpacity" min="10" max="100" value="100">
+                        </div>
+                    </div>
+                    
+                    <div class="annotation-actions">
+                        <button id="undoAnnotation" class="action-button" aria-label="Undo last annotation">
+                            <span class="button-icon">↶</span>
+                            Undo
+                        </button>
+                        <button id="redoAnnotation" class="action-button" aria-label="Redo annotation">
+                            <span class="button-icon">↷</span>
+                            Redo
+                        </button>
+                        <button id="clearAnnotations" class="danger-button">
+                            <span class="button-icon">🗑️</span>
+                            Clear All
+                        </button>
+                        <button id="saveAnnotations" class="primary-button">
+                            <span class="button-icon">💾</span>
+                            Save Annotations
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="annotation-canvas-container">
+                    <canvas id="annotationCanvas" aria-label="Annotation canvas"></canvas>
+                    <div class="annotation-overlay" id="annotationOverlay"></div>
+                </div>
+            </section>
         </div>
 
         <!-- Comparison Tab -->
-        <div id="comparison" class="tab-content">
-          <section>
-            <h2>PDF Comparison</h2>
-            <p>Compare original and dark mode versions side by side</p>
-            
-            <div class="comparison-controls">
-              <button id="prevComparisonPage" aria-label="Previous Page">&lt;</button>
-              <span id="comparisonPageInfo">Page 1 of 1</span>
-              <button id="nextComparisonPage" aria-label="Next Page">&gt;</button>
-              <button id="generateComparisonPdf" class="primary-button">Generate Comparison PDF</button>
-            </div>
-            
-            <div class="comparison-container">
-              <div class="comparison-original">
-                <h3>Original</h3>
-                <div id="originalPdfContainer"></div>
-              </div>
-              <div class="comparison-converted">
-                <h3>Dark Mode</h3>
-                <div id="convertedPdfContainer"></div>
-              </div>
-            </div>
-          </section>
+        <div id="comparison" class="tab-content" role="tabpanel" aria-labelledby="comparison-tab">
+            <section>
+                <h2>PDF Comparison</h2>
+                <p>Compare original and dark mode versions side by side</p>
+                
+                <div class="comparison-controls">
+                    <button id="prevComparisonPage" class="nav-button" aria-label="Previous Page">
+                        <span class="button-icon">←</span>
+                        Previous
+                    </button>
+                    <span id="comparisonPageInfo" class="page-info">Page 1 of 1</span>
+                    <button id="nextComparisonPage" class="nav-button" aria-label="Next Page">
+                        Next
+                        <span class="button-icon">→</span>
+                    </button>
+                    <button id="generateComparisonPdf" class="primary-button">
+                        <span class="button-icon">📊</span>
+                        Generate Comparison PDF
+                    </button>
+                </div>
+                
+                <div class="comparison-container">
+                    <div class="comparison-original">
+                        <h3>Original</h3>
+                        <div id="originalPdfContainer" class="pdf-container"></div>
+                    </div>
+                    <div class="comparison-converted">
+                        <h3>Dark Mode</h3>
+                        <div id="convertedPdfContainer" class="pdf-container"></div>
+                    </div>
+                </div>
+                
+                <div class="comparison-tools">
+                    <button id="overlayComparison" class="secondary-button">
+                        <span class="button-icon">🔄</span>
+                        Overlay Comparison
+                    </button>
+                    <button id="differenceView" class="secondary-button">
+                        <span class="button-icon">🔍</span>
+                        Difference View
+                    </button>
+                    <button id="splitView" class="secondary-button active">
+                        <span class="button-icon">⚌</span>
+                        Split View
+                    </button>
+                </div>
+            </section>
         </div>
         
+        <!-- Loading Indicator -->
         <div id="loading" class="hidden" role="status" aria-live="polite">
-            <div class="spinner"></div>
-            <p>Loading...</p>
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p id="loadingMessage">Loading...</p>
+                <div class="loading-details">
+                    <div id="loadingProgress" class="loading-progress-text"></div>
+                    <div id="loadingETA" class="loading-eta"></div>
+                </div>
+            </div>
         </div>
     </main>
     
+    <!-- Footer -->
     <footer>
-        <p>&copy; 2024 LitasDark. All rights reserved.</p>
-        <p class="version">Version 2.0 - Enhanced Edition</p>
+        <div class="footer-content">
+            <p>&copy; 2024 LitasDark. All rights reserved.</p>
+            <p class="version">Version 3.0.0 - Enhanced Edition</p>
+            <div class="footer-links">
+                <a href="#" id="privacyLink">Privacy Policy</a>
+                <a href="#" id="termsLink">Terms of Service</a>
+                <a href="#" id="supportLink">Support</a>
+                <button id="keyboardShortcuts" class="link-button">Keyboard Shortcuts</button>
+            </div>
+        </div>
     </footer>
     
-    <a href="#" id="backToTop" aria-label="Back to Top">↑</a>
+    <!-- Floating Action Buttons -->
+    <div class="fab-container">
+        <button id="backToTop" class="fab" aria-label="Back to Top">
+            <span class="button-icon">↑</span>
+        </button>
+        <button id="helpFab" class="fab" aria-label="Help">
+            <span class="button-icon">?</span>
+        </button>
+        <button id="settingsFab" class="fab" aria-label="Settings">
+            <span class="button-icon">⚙️</span>
+        </button>
+    </div>
     
-    <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+    
+    <!-- Scripts -->
     <script type="module" src="messages.js" defer></script>
     <script type="module" src="src/main.js" defer></script>
 
+    <!-- Particles.js initialization -->
     <script>
-        // Tab functionality
         document.addEventListener('DOMContentLoaded', () => {
+            // Tab functionality
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
 
@@ -291,75 +575,125 @@
                     const targetTab = button.dataset.tab;
                     
                     // Remove active class from all tabs and contents
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tabButtons.forEach(btn => {
+                        btn.classList.remove('active');
+                        btn.setAttribute('aria-selected', 'false');
+                    });
                     tabContents.forEach(content => content.classList.remove('active'));
                     
                     // Add active class to clicked tab and corresponding content
                     button.classList.add('active');
+                    button.setAttribute('aria-selected', 'true');
                     document.getElementById(targetTab).classList.add('active');
                 });
             });
-        });
 
-        // Initialize particles.js
-        if (typeof particlesJS !== 'undefined') {
-            particlesJS('particles-js', {
-                particles: {
-                    number: { value: 150, density: { enable: true, value_area: 1000 } },
-                    color: {
-                        value: ['#ffffff', '#ff0000', '#00ff00', '#0000ff']
-                    },
-                    shape: {
-                        type: ['circle', 'triangle', 'polygon', 'star', 'edge'],
-                        stroke: { width: 0, color: '#000000' },
-                        polygon: { nb_sides: 6 },
-                    },
-                    opacity: {
-                        value: 0.8,
-                        random: true,
-                        anim: { enable: true, speed: 2, opacity_min: 0.2, sync: false },
-                    },
-                    size: {
-                        value: 5,
-                        random: true,
-                        anim: { enable: true, speed: 30, size_min: 0.1, sync: false },
-                    },
-                    line_linked: {
-                        enable: true,
-                        distance: 120,
-                        color: '#ffffff',
-                        opacity: 0.8,
-                        width: 1,
-                    },
-                    move: {
-                        enable: true,
-                        speed: 10,
-                        direction: 'none',
-                        random: true,
-                        straight: false,
-                        out_mode: 'out',
-                        bounce: true,
-                        attract: { enable: true, rotateX: 800, rotateY: 1600 },
-                    },
-                },
-                interactivity: {
-                    detect_on: 'canvas',
-                    events: {
-                        onhover: { enable: true, mode: ['grab', 'bubble', 'repulse'] },
-                        onclick: { enable: true, mode: ['push', 'remove', 'bubble'] },
-                        resize: true,
-                    },
-                    modes: {
-                        grab: { distance: 350, line_linked: { opacity: 1 } },
-                        bubble: { distance: 400, size: 20, duration: 2, opacity: 0.8, speed: 3 },
-                        repulse: { distance: 250, duration: 0.6 },
-                        push: { particles_nb: 4 },
-                        remove: { particles_nb: 2 },
-                    },
-                },
-                retina_detect: true,
+            // Range input value display
+            const rangeInputs = document.querySelectorAll('input[type="range"]');
+            rangeInputs.forEach(input => {
+                const valueDisplay = document.getElementById(input.id + 'Value');
+                if (valueDisplay) {
+                    input.addEventListener('input', () => {
+                        valueDisplay.textContent = input.value;
+                    });
+                }
             });
-        }
+
+            // Custom theme controls
+            const themeSelect = document.getElementById('themeSelect');
+            const customControls = document.getElementById('customThemeControls');
+            
+            if (themeSelect && customControls) {
+                themeSelect.addEventListener('change', () => {
+                    customControls.style.display = themeSelect.value === 'custom' ? 'block' : 'none';
+                });
+            }
+
+            // File drop zone
+            const fileDropZone = document.getElementById('fileDropZone');
+            const fileInput = document.getElementById('pdfUpload');
+            
+            if (fileDropZone && fileInput) {
+                fileDropZone.addEventListener('click', () => fileInput.click());
+                
+                fileDropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    fileDropZone.classList.add('drag-over');
+                });
+                
+                fileDropZone.addEventListener('dragleave', () => {
+                    fileDropZone.classList.remove('drag-over');
+                });
+                
+                fileDropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    fileDropZone.classList.remove('drag-over');
+                    
+                    const files = e.dataTransfer.files;
+                    if (files.length > 0 && files[0].type === 'application/pdf') {
+                        fileInput.files = files;
+                        fileInput.dispatchEvent(new Event('change'));
+                    }
+                });
+            }
+
+            // Initialize particles.js
+            if (typeof particlesJS !== 'undefined') {
+                particlesJS('particles-js', {
+                    particles: {
+                        number: { value: 80, density: { enable: true, value_area: 800 } },
+                        color: { value: ['#6200ea', '#059992', '#ff6b6b'] },
+                        shape: {
+                            type: ['circle', 'triangle'],
+                            stroke: { width: 0, color: '#000000' },
+                        },
+                        opacity: {
+                            value: 0.6,
+                            random: true,
+                            anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false },
+                        },
+                        size: {
+                            value: 3,
+                            random: true,
+                            anim: { enable: true, speed: 20, size_min: 0.1, sync: false },
+                        },
+                        line_linked: {
+                            enable: true,
+                            distance: 150,
+                            color: '#ffffff',
+                            opacity: 0.4,
+                            width: 1,
+                        },
+                        move: {
+                            enable: true,
+                            speed: 2,
+                            direction: 'none',
+                            random: false,
+                            straight: false,
+                            out_mode: 'out',
+                            bounce: false,
+                            attract: { enable: false, rotateX: 600, rotateY: 1200 },
+                        },
+                    },
+                    interactivity: {
+                        detect_on: 'canvas',
+                        events: {
+                            onhover: { enable: true, mode: 'repulse' },
+                            onclick: { enable: true, mode: 'push' },
+                            resize: true,
+                        },
+                        modes: {
+                            grab: { distance: 400, line_linked: { opacity: 1 } },
+                            bubble: { distance: 400, size: 40, duration: 2, opacity: 8, speed: 3 },
+                            repulse: { distance: 200, duration: 0.4 },
+                            push: { particles_nb: 4 },
+                            remove: { particles_nb: 2 },
+                        },
+                    },
+                    retina_detect: true,
+                });
+            }
+        });
     </script>
 </body>
 </html>
