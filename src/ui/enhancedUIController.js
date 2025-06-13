@@ -1,5 +1,5 @@
 /**
- * Enhanced UI Controller with Advanced Features
+ * Enhanced UI Controller with Modern UX
  */
 import { UIController } from './uiController.js';
 import { PDFProcessor } from '../features/pdfProcessor.js';
@@ -14,11 +14,26 @@ export class EnhancedUIController extends UIController {
     this.batchProcessor = new BatchProcessor(this.pdfConverter, this.pdfProcessor);
     this.ocrProcessor = new OCRProcessor();
     this.currentOCRResults = [];
+    this.modernUI = null;
     
     this.initializeEnhancedFeatures();
+    this.initializeModernUI();
+  }
+
+  async initializeModernUI() {
+    // Wait for modern UI to be available
+    if (window.modernUI) {
+      this.modernUI = window.modernUI;
+    } else {
+      // Retry after a short delay
+      setTimeout(() => this.initializeModernUI(), 100);
+    }
   }
 
   initializeEnhancedFeatures() {
+    // Enhanced file upload with better UX
+    this.setupEnhancedFileUpload();
+    
     // Batch processing
     document.getElementById('batchUpload')?.addEventListener('change', (e) => {
       this.handleBatchUpload(e.target.files);
@@ -60,10 +75,162 @@ export class EnhancedUIController extends UIController {
     // Setup batch processor progress handling
     this.batchProcessor.onProgress((current, total, message) => {
       this.updateProgressBar(current, total, message);
+      if (this.modernUI) {
+        this.modernUI.showProgress(current, total, message);
+      }
     });
     
-    // Initialize accessibility features
-    this.setupAccessibilityFeatures();
+    // Enhanced zoom controls
+    this.setupZoomControls();
+  }
+
+  setupEnhancedFileUpload() {
+    const fileInput = document.getElementById('pdfUpload');
+    if (!fileInput) return;
+
+    // Enhanced drag and drop
+    const uploadZone = fileInput.closest('.upload-zone') || fileInput.parentElement;
+    
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      uploadZone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      });
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      uploadZone.addEventListener(eventName, () => {
+        uploadZone.classList.add('drag-over');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      uploadZone.addEventListener(eventName, () => {
+        uploadZone.classList.remove('drag-over');
+      });
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+      const files = e.dataTransfer.files;
+      if (files.length > 0 && files[0].type === 'application/pdf') {
+        fileInput.files = files;
+        this.handleFileUpload(files[0]);
+      }
+    });
+  }
+
+  setupZoomControls() {
+    let currentZoom = 100;
+    const zoomLevel = document.getElementById('zoomLevel');
+    const previewCanvas = document.getElementById('previewCanvas');
+    
+    document.getElementById('zoomIn')?.addEventListener('click', () => {
+      currentZoom = Math.min(currentZoom + 25, 200);
+      this.updateZoom(currentZoom, zoomLevel, previewCanvas);
+    });
+
+    document.getElementById('zoomOut')?.addEventListener('click', () => {
+      currentZoom = Math.max(currentZoom - 25, 50);
+      this.updateZoom(currentZoom, zoomLevel, previewCanvas);
+    });
+
+    document.getElementById('resetZoom')?.addEventListener('click', () => {
+      currentZoom = 100;
+      this.updateZoom(currentZoom, zoomLevel, previewCanvas);
+    });
+  }
+
+  updateZoom(zoom, zoomLevel, canvas) {
+    if (zoomLevel) zoomLevel.textContent = `${zoom}%`;
+    if (canvas) {
+      canvas.style.transform = `scale(${zoom / 100})`;
+      canvas.style.transformOrigin = 'center';
+    }
+  }
+
+  async handleFileUpload(file) {
+    if (!file) return;
+
+    const loadingElement = document.getElementById('loading');
+    
+    try {
+      // Show modern loading state
+      if (this.modernUI) {
+        this.modernUI.showToast('Uploading PDF...', 'info');
+      }
+      
+      await super.handleFileUpload(file);
+      
+      // Show success message
+      if (this.modernUI) {
+        this.modernUI.showToast('PDF uploaded successfully!', 'success');
+      }
+      
+      // Show preview section
+      document.getElementById('preview')?.style.setProperty('display', 'block');
+      
+    } catch (error) {
+      if (this.modernUI) {
+        this.modernUI.showToast(error.message, 'error');
+      }
+    }
+  }
+
+  async generatePreview() {
+    const button = document.getElementById('generatePreviewButton');
+    if (!button) return;
+
+    const stopLoading = this.modernUI?.createLoadingState(button, 'Generating...') || (() => {});
+    
+    try {
+      await super.generatePreview();
+      
+      if (this.modernUI) {
+        this.modernUI.showToast('Preview generated successfully!', 'success');
+      }
+      
+      // Smooth scroll to preview
+      document.getElementById('preview')?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      
+    } catch (error) {
+      if (this.modernUI) {
+        this.modernUI.showToast(error.message, 'error');
+      }
+    } finally {
+      stopLoading();
+    }
+  }
+
+  async convertToDarkMode() {
+    const button = document.getElementById('convertButton');
+    if (!button) return;
+
+    const stopLoading = this.modernUI?.createLoadingState(button, 'Converting...') || (() => {});
+    
+    try {
+      await super.convertToDarkMode();
+      
+      // Show download section with animation
+      const downloadSection = document.getElementById('downloadSection');
+      if (downloadSection) {
+        downloadSection.style.display = 'block';
+        downloadSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      
+      if (this.modernUI) {
+        this.modernUI.showToast('PDF converted to dark mode successfully!', 'success');
+      }
+      
+    } catch (error) {
+      if (this.modernUI) {
+        this.modernUI.showToast(error.message, 'error');
+      }
+    } finally {
+      stopLoading();
+    }
   }
 
   async handleBatchUpload(files) {
@@ -73,46 +240,36 @@ export class EnhancedUIController extends UIController {
       const settings = this.getBatchSettings();
       const ids = this.batchProcessor.addToQueue(files, settings);
       
-      showMessage(`Added ${files.length} files to batch queue`);
+      if (this.modernUI) {
+        this.modernUI.showToast(`Added ${files.length} files to batch queue`, 'success');
+      }
+      
       this.updateBatchQueueDisplay();
     } catch (error) {
-      showError(`Failed to add files to queue: ${error.message}`);
+      if (this.modernUI) {
+        this.modernUI.showToast(`Failed to add files to queue: ${error.message}`, 'error');
+      }
     }
   }
 
-  getBatchSettings() {
-    return {
-      convertToDarkMode: document.getElementById('batchDarkMode')?.checked || false,
-      themeSettings: this.getThemeSettings(),
-      addWatermark: document.getElementById('batchWatermark')?.checked || false,
-      watermarkText: document.getElementById('batchWatermarkText')?.value || '',
-      watermarkOptions: {
-        opacity: parseFloat(document.getElementById('watermarkOpacity')?.value || 0.3),
-        rotation: parseInt(document.getElementById('watermarkRotation')?.value || 45),
-        fontSize: parseInt(document.getElementById('watermarkSize')?.value || 50),
-        position: document.getElementById('watermarkPosition')?.value || 'center'
-      },
-      removeMetadata: document.getElementById('batchRemoveMetadata')?.checked || false,
-      compress: document.getElementById('batchCompress')?.checked || false,
-      compressionOptions: {
-        useObjectStreams: true,
-        compress: true,
-        optimizeForSize: true
-      }
-    };
-  }
-
   async startBatchProcessing() {
-    const loadingElement = document.getElementById('loading');
+    const button = document.getElementById('startBatchButton');
+    if (!button) return;
+
+    const stopLoading = this.modernUI?.createLoadingState(button, 'Processing...') || (() => {});
     
     try {
-      showLoading(loadingElement);
       const results = await this.batchProcessor.startProcessing();
       
       const successful = results.filter(r => r.success).length;
       const failed = results.filter(r => !r.success).length;
       
-      showMessage(`Batch processing complete: ${successful} successful, ${failed} failed`);
+      if (this.modernUI) {
+        this.modernUI.showToast(
+          `Batch processing complete: ${successful} successful, ${failed} failed`, 
+          successful > 0 ? 'success' : 'warning'
+        );
+      }
       
       if (successful > 0) {
         await this.batchProcessor.downloadAllAsZip();
@@ -120,248 +277,64 @@ export class EnhancedUIController extends UIController {
       
       this.updateBatchQueueDisplay();
     } catch (error) {
-      showError(`Batch processing failed: ${error.message}`);
+      if (this.modernUI) {
+        this.modernUI.showToast(`Batch processing failed: ${error.message}`, 'error');
+      }
     } finally {
-      hideLoading(loadingElement);
-    }
-  }
-
-  async addWatermark() {
-    if (!this.pdfLoader.isDocumentLoaded()) {
-      showError('Please upload a PDF file first.');
-      return;
-    }
-
-    const watermarkText = document.getElementById('watermarkText')?.value;
-    if (!watermarkText) {
-      showError('Please enter watermark text.');
-      return;
-    }
-
-    const loadingElement = document.getElementById('loading');
-    
-    try {
-      showLoading(loadingElement);
-      
-      const pdfDoc = this.pdfLoader.getCurrentDocument();
-      const options = {
-        opacity: parseFloat(document.getElementById('watermarkOpacity')?.value || 0.3),
-        rotation: parseInt(document.getElementById('watermarkRotation')?.value || 45),
-        fontSize: parseInt(document.getElementById('watermarkSize')?.value || 50),
-        position: document.getElementById('watermarkPosition')?.value || 'center'
-      };
-      
-      const watermarkedBytes = await this.pdfProcessor.addWatermark(pdfDoc, watermarkText, options);
-      this.downloadPDF(watermarkedBytes, 'watermarked.pdf');
-      
-      showMessage('Watermark added successfully!');
-    } catch (error) {
-      showError(`Failed to add watermark: ${error.message}`);
-    } finally {
-      hideLoading(loadingElement);
+      stopLoading();
     }
   }
 
   async extractTextFromPDF() {
-    if (!this.pdfLoader.isDocumentLoaded()) {
-      showError('Please upload a PDF file first.');
-      return;
-    }
+    const button = document.getElementById('extractTextButton');
+    if (!button) return;
 
-    const loadingElement = document.getElementById('loading');
+    const stopLoading = this.modernUI?.createLoadingState(button, 'Extracting...') || (() => {});
     
     try {
-      showLoading(loadingElement);
+      await super.extractTextFromPDF();
       
-      const pdfDoc = this.pdfLoader.getCurrentDocument();
-      const numPages = pdfDoc.getPageCount();
-      const canvases = [];
-      
-      // Render all pages for OCR
-      for (let i = 1; i <= numPages; i++) {
-        const canvas = await this.pdfRenderer.renderPage(pdfDoc, i, { scale: 2.0 });
-        canvases.push(canvas);
+      if (this.modernUI) {
+        this.modernUI.showToast('Text extraction completed!', 'success');
       }
       
-      // Perform OCR
-      this.currentOCRResults = await this.ocrProcessor.recognizeMultiplePages(
-        canvases,
-        (current, total, message) => {
-          this.updateProgressBar(current, total, message);
-        }
-      );
-      
-      this.displayOCRResults();
-      showMessage('Text extraction completed!');
     } catch (error) {
-      showError(`Text extraction failed: ${error.message}`);
+      if (this.modernUI) {
+        this.modernUI.showToast(`Text extraction failed: ${error.message}`, 'error');
+      }
     } finally {
-      hideLoading(loadingElement);
-    }
-  }
-
-  async searchInPDF() {
-    if (this.currentOCRResults.length === 0) {
-      showError('Please extract text first.');
-      return;
-    }
-
-    const searchText = document.getElementById('searchText')?.value;
-    if (!searchText) {
-      showError('Please enter search text.');
-      return;
-    }
-
-    try {
-      const matches = this.ocrProcessor.searchText(this.currentOCRResults, searchText);
-      this.displaySearchResults(matches);
-      
-      if (matches.length === 0) {
-        showMessage('No matches found.');
-      } else {
-        showMessage(`Found ${matches.length} matches.`);
-      }
-    } catch (error) {
-      showError(`Search failed: ${error.message}`);
+      stopLoading();
     }
   }
 
   async showDocumentInfo() {
-    if (!this.pdfLoader.isDocumentLoaded()) {
-      showError('Please upload a PDF file first.');
-      return;
-    }
-
     try {
-      const pdfDoc = this.pdfLoader.getCurrentDocument();
-      const info = this.pdfProcessor.getDocumentInfo(pdfDoc);
-      this.displayDocumentInfo(info);
+      await super.showDocumentInfo();
+      
+      if (this.modernUI) {
+        this.modernUI.showToast('Document information loaded', 'info');
+      }
+      
     } catch (error) {
-      showError(`Failed to get document info: ${error.message}`);
-    }
-  }
-
-  async compressPDF() {
-    if (!this.pdfLoader.isDocumentLoaded()) {
-      showError('Please upload a PDF file first.');
-      return;
-    }
-
-    const loadingElement = document.getElementById('loading');
-    
-    try {
-      showLoading(loadingElement);
-      
-      const pdfDoc = this.pdfLoader.getCurrentDocument();
-      const compressedBytes = await this.pdfProcessor.compressPDF(pdfDoc);
-      
-      this.downloadPDF(compressedBytes, 'compressed.pdf');
-      showMessage('PDF compressed successfully!');
-    } catch (error) {
-      showError(`Compression failed: ${error.message}`);
-    } finally {
-      hideLoading(loadingElement);
-    }
-  }
-
-  async removeMetadata() {
-    if (!this.pdfLoader.isDocumentLoaded()) {
-      showError('Please upload a PDF file first.');
-      return;
-    }
-
-    const loadingElement = document.getElementById('loading');
-    
-    try {
-      showLoading(loadingElement);
-      
-      const pdfDoc = this.pdfLoader.getCurrentDocument();
-      const cleanedBytes = await this.pdfProcessor.removeMetadata(pdfDoc);
-      
-      this.downloadPDF(cleanedBytes, 'metadata-removed.pdf');
-      showMessage('Metadata removed successfully!');
-    } catch (error) {
-      showError(`Failed to remove metadata: ${error.message}`);
-    } finally {
-      hideLoading(loadingElement);
+      if (this.modernUI) {
+        this.modernUI.showToast(`Failed to get document info: ${error.message}`, 'error');
+      }
     }
   }
 
   displayOCRResults() {
+    super.displayOCRResults();
+    
+    // Add enhanced styling to OCR results
     const resultsContainer = document.getElementById('ocrResults');
-    if (!resultsContainer) return;
-
-    resultsContainer.innerHTML = '';
-    
-    this.currentOCRResults.forEach(result => {
-      const resultDiv = document.createElement('div');
-      resultDiv.className = 'ocr-result';
+    if (resultsContainer) {
+      resultsContainer.classList.add('space-y-4');
       
-      if (result.success) {
-        resultDiv.innerHTML = `
-          <h4>Page ${result.pageNumber} (Confidence: ${Math.round(result.confidence)}%)</h4>
-          <div class="ocr-text">${result.text.replace(/\n/g, '<br>')}</div>
-        `;
-      } else {
-        resultDiv.innerHTML = `
-          <h4>Page ${result.pageNumber} - Error</h4>
-          <div class="error">${result.error}</div>
-        `;
-      }
-      
-      resultsContainer.appendChild(resultDiv);
-    });
-
-    // Add export buttons
-    const exportDiv = document.createElement('div');
-    exportDiv.className = 'export-controls';
-    exportDiv.innerHTML = `
-      <button onclick="window.enhancedUI.exportOCR('txt')">Export as TXT</button>
-      <button onclick="window.enhancedUI.exportOCR('json')">Export as JSON</button>
-      <button onclick="window.enhancedUI.exportOCR('csv')">Export as CSV</button>
-    `;
-    resultsContainer.appendChild(exportDiv);
-  }
-
-  displaySearchResults(matches) {
-    const resultsContainer = document.getElementById('searchResults');
-    if (!resultsContainer) return;
-
-    resultsContainer.innerHTML = '';
-    
-    matches.forEach((match, index) => {
-      const matchDiv = document.createElement('div');
-      matchDiv.className = 'search-match';
-      matchDiv.innerHTML = `
-        <div class="match-header">
-          <strong>Page ${match.pageNumber}</strong> 
-          <span class="confidence">(${Math.round(match.confidence)}% confidence)</span>
-        </div>
-        <div class="match-context">${match.context}</div>
-      `;
-      resultsContainer.appendChild(matchDiv);
-    });
-  }
-
-  displayDocumentInfo(info) {
-    const infoContainer = document.getElementById('documentInfo');
-    if (!infoContainer) return;
-
-    infoContainer.innerHTML = `
-      <div class="doc-info">
-        <h3>Document Information</h3>
-        <div class="info-grid">
-          <div><strong>Title:</strong> ${info.title}</div>
-          <div><strong>Author:</strong> ${info.author}</div>
-          <div><strong>Subject:</strong> ${info.subject}</div>
-          <div><strong>Pages:</strong> ${info.pageCount}</div>
-          <div><strong>Creator:</strong> ${info.creator}</div>
-          <div><strong>Producer:</strong> ${info.producer}</div>
-          <div><strong>Created:</strong> ${info.creationDate ? info.creationDate.toLocaleDateString() : 'Unknown'}</div>
-          <div><strong>Modified:</strong> ${info.modificationDate ? info.modificationDate.toLocaleDateString() : 'Unknown'}</div>
-        </div>
-      </div>
-    `;
+      // Style individual results
+      resultsContainer.querySelectorAll('.ocr-result').forEach(result => {
+        result.classList.add('p-4', 'bg-gray-50', 'rounded-lg', 'border', 'border-gray-200');
+      });
+    }
   }
 
   updateBatchQueueDisplay() {
@@ -370,75 +343,66 @@ export class EnhancedUIController extends UIController {
     
     if (statusElement) {
       statusElement.innerHTML = `
-        <div class="batch-status">
-          <div>Queue: ${status.queueLength} files</div>
-          <div>Completed: ${status.completed}</div>
-          <div>Failed: ${status.failed}</div>
-          <div>Status: ${status.isProcessing ? 'Processing...' : 'Ready'}</div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-lg">
+          <div class="text-center">
+            <div class="text-2xl font-bold text-blue-600">${status.queueLength}</div>
+            <div class="text-sm text-gray-600">In Queue</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-green-600">${status.completed}</div>
+            <div class="text-sm text-gray-600">Completed</div>
+          </div>
+          <div class="text-center">
+            <div class="text-2xl font-bold text-red-600">${status.failed}</div>
+            <div class="text-sm text-gray-600">Failed</div>
+          </div>
+          <div class="text-center">
+            <div class="text-sm font-medium ${status.isProcessing ? 'text-blue-600' : 'text-gray-600'}">
+              ${status.isProcessing ? 'Processing...' : 'Ready'}
+            </div>
+          </div>
         </div>
       `;
     }
   }
 
-  exportOCR(format) {
+  // Override parent methods to use modern UI
+  downloadPDF(pdfBytes, filename, linkId = 'downloadLink') {
     try {
-      const exportData = this.ocrProcessor.exportResults(this.currentOCRResults, format);
-      const blob = new Blob([exportData], { 
-        type: format === 'json' ? 'application/json' : 'text/plain' 
-      });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `ocr-results.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      super.downloadPDF(pdfBytes, filename, linkId);
       
-      showMessage(`OCR results exported as ${format.toUpperCase()}`);
+      if (this.modernUI) {
+        this.modernUI.showToast(`${filename} is ready for download!`, 'success');
+      }
+      
     } catch (error) {
-      showError(`Export failed: ${error.message}`);
+      if (this.modernUI) {
+        this.modernUI.showToast('Failed to download PDF. Please try again.', 'error');
+      }
+    }
+  }
+
+  updateProgressBar(current, total, message) {
+    super.updateProgressBar(current, total, message);
+    
+    // Update loading message
+    const loadingMessage = document.getElementById('loadingMessage');
+    const loadingProgress = document.getElementById('loadingProgress');
+    
+    if (loadingMessage) {
+      loadingMessage.textContent = message;
+    }
+    
+    if (loadingProgress) {
+      const percentage = Math.round((current / total) * 100);
+      loadingProgress.textContent = `${current} of ${total} (${percentage}%)`;
     }
   }
 
   // Cleanup when page unloads
   cleanup() {
+    super.cleanup();
     this.ocrProcessor.terminate();
-  }
-  
-  setupAccessibilityFeatures() {
-    // Add keyboard shortcuts
-    document.addEventListener('keydown', (e) => {
-      // Ctrl+P for preview
-      if (e.ctrlKey && e.key === 'p' && !e.shiftKey) {
-        e.preventDefault();
-        document.getElementById('generatePreviewButton')?.click();
-      }
-      
-      // Ctrl+D for dark mode conversion
-      if (e.ctrlKey && e.key === 'd') {
-        e.preventDefault();
-        document.getElementById('convertButton')?.click();
-      }
-      
-      // Escape to close any modal
-      if (e.key === 'Escape') {
-        this.closeAllModals();
-      }
-    });
-    
-    // Improve focus management
-    const focusableElements = document.querySelectorAll('button, input, select, textarea, a[href]');
-    focusableElements.forEach(el => {
-      if (!el.getAttribute('aria-label') && !el.innerText) {
-        el.setAttribute('aria-label', el.id || el.name || 'Interactive element');
-      }
-    });
-  }
-  
-  closeAllModals() {
-    const modals = document.querySelectorAll('.modal.active');
-    modals.forEach(modal => modal.classList.remove('active'));
   }
 }
 
