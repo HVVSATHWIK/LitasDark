@@ -21,7 +21,7 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" href="styles.css">
     
-    <!-- External Libraries - Load in correct order -->
+    <!-- External Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/particles.js"></script>
@@ -42,23 +42,25 @@
     
     <!-- Header -->
     <header>
-        <h1>LitasDark: Advanced PDF Converter</h1>
-        <p>Transform your PDFs with dark mode, OCR, batch processing & more</p>
-        <img src="/pdfdark.jpg" alt="LitasDark Logo" id="logo">
+        <div class="logo-container">
+            <img src="/logo.svg" alt="LitasDark Logo" class="main-logo">
+        </div>
+        <h1>LitasDark</h1>
+        <p class="subtitle">Transform your PDFs with advanced dark mode conversion</p>
     </header>
     
     <!-- Main Content -->
     <main id="main-content" role="main">
         <!-- Quick Start Card -->
-        <div class="card">
+        <div class="glass-card main-card">
             <div class="card-header">
-                <h2 class="card-title">Quick Start</h2>
-                <p class="card-description">Upload a PDF and convert it to dark mode in seconds</p>
+                <h2>Quick Start</h2>
+                <p>Upload a PDF and convert it to dark mode in seconds</p>
             </div>
             <div class="card-content">
                 <div class="upload-section">
                     <!-- Enhanced Upload Zone -->
-                    <div class="upload-zone" id="uploadZone">
+                    <div class="upload-zone" id="uploadZone" tabindex="0" role="button" aria-label="Upload PDF file">
                         <div class="upload-icon">
                             <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -91,10 +93,10 @@
         </div>
 
         <!-- Theme Settings Card -->
-        <div class="card">
+        <div class="glass-card">
             <div class="card-header">
-                <h3 class="card-title">Theme Settings</h3>
-                <p class="card-description">Customize the dark mode appearance</p>
+                <h3>Theme Settings</h3>
+                <p>Customize the dark mode appearance</p>
             </div>
             <div class="card-content">
                 <div class="theme-grid">
@@ -129,9 +131,9 @@
         </div>
 
         <!-- Preview Section -->
-        <div id="preview" class="card preview-card">
+        <div id="preview" class="glass-card preview-card" style="display: none;">
             <div class="card-header">
-                <h3 class="card-title">Preview</h3>
+                <h3>Preview</h3>
                 <div class="zoom-controls">
                     <button id="zoomOut" class="btn btn-secondary btn-sm" aria-label="Zoom out">−</button>
                     <span id="zoomLevel" class="zoom-level">100%</span>
@@ -148,7 +150,7 @@
         </div>
 
         <!-- Download Section -->
-        <div id="downloadSection" class="card download-card">
+        <div id="downloadSection" class="glass-card download-card" style="display: none;">
             <div class="card-content">
                 <div class="download-content">
                     <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="success-icon">
@@ -167,10 +169,10 @@
         </div>
 
         <!-- Advanced Features Tabs -->
-        <div class="card">
+        <div class="glass-card">
             <div class="card-header">
-                <h3 class="card-title">Advanced Features</h3>
-                <p class="card-description">Explore powerful PDF processing tools</p>
+                <h3>Advanced Features</h3>
+                <p>Explore powerful PDF processing tools</p>
             </div>
             <div class="card-content">
                 <!-- Tab Navigation -->
@@ -202,7 +204,7 @@
                                     <input type="number" id="endPage" min="1" class="form-input" placeholder="10">
                                 </div>
                                 <button id="splitButton" class="btn btn-secondary btn-full">Split PDF</button>
-                                <a id="splitDownloadLink" href="#" download="split_pdf.pdf" class="download-link">Download Split PDF</a>
+                                <a id="splitDownloadLink" href="#" download="split_pdf.pdf" class="download-link" style="display: none;">Download Split PDF</a>
                             </div>
                         </div>
 
@@ -215,7 +217,7 @@
                                     <input type="file" id="pdfFiles" accept="application/pdf,.pdf" multiple class="form-input">
                                 </div>
                                 <button id="mergeButton" class="btn btn-secondary btn-full">Merge PDFs</button>
-                                <a id="mergeDownloadLink" href="#" download="merged_pdf.pdf" class="download-link">Download Merged PDF</a>
+                                <a id="mergeDownloadLink" href="#" download="merged_pdf.pdf" class="download-link" style="display: none;">Download Merged PDF</a>
                             </div>
                         </div>
 
@@ -236,17 +238,17 @@
                                     </select>
                                 </div>
                                 <button id="rotateButton" class="btn btn-secondary btn-full">Rotate Page</button>
-                                <a id="rotateDownloadLink" href="#" download="rotated_pdf.pdf" class="download-link">Download Rotated PDF</a>
+                                <a id="rotateDownloadLink" href="#" download="rotated_pdf.pdf" class="download-link" style="display: none;">Download Rotated PDF</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="batch" class="tab-content" role="tabpanel">
+                <div id="batch" class="tab-content" role="tabpanel" style="display: none;">
                     <div class="batch-content">
                         <div class="batch-upload">
                             <label class="form-label" for="batchUpload">Upload Multiple PDFs</label>
-                            <div class="batch-upload-zone" id="batchUploadZone">
+                            <div class="batch-upload-zone" id="batchUploadZone" tabindex="0" role="button" aria-label="Upload multiple PDF files">
                                 <div class="upload-icon">
                                     <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -302,19 +304,19 @@
                             </button>
                         </div>
                         
-                        <div id="batchStatus" class="batch-status"></div>
-                        <div id="batchResults" class="batch-results"></div>
+                        <div id="batchStatus" class="batch-status" style="display: none;"></div>
+                        <div id="batchResults" class="batch-results" style="display: none;"></div>
                     </div>
                 </div>
 
-                <div id="tools" class="tab-content" role="tabpanel">
+                <div id="tools" class="tab-content" role="tabpanel" style="display: none;">
                     <div class="tools-grid">
                         <!-- Document Info -->
                         <div class="tool-card">
                             <h4>Document Information</h4>
                             <div class="tool-content">
                                 <button id="showInfoButton" class="btn btn-secondary btn-full">Show Info</button>
-                                <div id="documentInfo" class="document-info"></div>
+                                <div id="documentInfo" class="document-info" style="display: none;"></div>
                             </div>
                         </div>
 
@@ -362,7 +364,7 @@
     </main>
     
     <!-- Loading Indicator -->
-    <div id="loading" class="loading-overlay" role="status" aria-live="polite">
+    <div id="loading" class="loading-overlay" role="status" aria-live="polite" style="display: none;">
         <div class="loading-content">
             <div class="spinner"></div>
             <p id="loadingMessage" class="loading-message">Processing...</p>
@@ -371,7 +373,7 @@
     </div>
     
     <!-- Back to Top Button -->
-    <button id="backToTop" class="back-to-top" aria-label="Back to Top">
+    <button id="backToTop" class="back-to-top" aria-label="Back to Top" style="display: none;">
         <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
         </svg>
