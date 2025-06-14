@@ -14,8 +14,12 @@ export class PDFConverter {
    * @returns {Promise<Uint8Array>} - Converted PDF bytes
    */
   async convertToDarkMode(sourcePdf, settings = {}) {
+    if (!window.PDFLib) {
+      throw new Error('PDF library not loaded. Please refresh the page.');
+    }
+
     const numPages = sourcePdf.getPageCount();
-    const newPdfDoc = await PDFLib.PDFDocument.create();
+    const newPdfDoc = await window.PDFLib.PDFDocument.create();
     
     this.notifyProgress(0, numPages, 'Starting conversion...');
 

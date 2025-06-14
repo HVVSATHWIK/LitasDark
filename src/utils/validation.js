@@ -56,7 +56,7 @@ export class Validator {
   static validateThemeSettings(settings) {
     const { theme, brightness, contrast } = settings;
     
-    const validThemes = ['dark', 'darker', 'darkest'];
+    const validThemes = ['dark', 'darker', 'darkest', 'sepia', 'blue-light'];
     if (theme && !validThemes.includes(theme)) {
       throw new Error('Invalid theme selection');
     }

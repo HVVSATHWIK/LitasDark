@@ -23,7 +23,13 @@ export class PDFLoader {
 
     try {
       const arrayBuffer = await file.arrayBuffer();
-      this.currentDocument = await PDFLib.PDFDocument.load(arrayBuffer);
+      
+      // Wait for PDFLib to be available
+      if (!window.PDFLib) {
+        throw new Error('PDF library not loaded. Please refresh the page.');
+      }
+      
+      this.currentDocument = await window.PDFLib.PDFDocument.load(arrayBuffer);
       this.notifyLoadingComplete();
       return this.currentDocument;
     } catch (error) {

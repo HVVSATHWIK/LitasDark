@@ -22,8 +22,13 @@ export class PDFRenderer {
     }
 
     try {
+      // Check if required libraries are available
+      if (!window.pdfjsLib) {
+        throw new Error('PDF.js library not loaded. Please refresh the page.');
+      }
+
       const pdfBytes = await pdfDoc.save();
-      const pdfDocument = await pdfjsLib.getDocument({ data: pdfBytes }).promise;
+      const pdfDocument = await window.pdfjsLib.getDocument({ data: pdfBytes }).promise;
       const page = await pdfDocument.getPage(pageNumber);
       
       const scale = settings.scale || 2.0;
@@ -90,23 +95,101 @@ export class PDFRenderer {
   applyThemeFilters(context, width, height, settings) {
     const { theme = 'dark', brightness = 100, contrast = 100 } = settings;
     
-    // Apply dark mode inversion
-    context.globalCompositeOperation = 'difference';
-    context.fillStyle = this.getThemeFillColor(theme);
-    context.fillRect(0, 0, width, height);
-    context.globalCompositeOperation = 'source-over';
-    
+    // Get image data for pixel manipulation
+    const imageData = context.getImageData(0, 0, width, height);
+    const data = imageData.data;
+
+    // Apply theme-specific filters
+    switch (theme) {
+      case 'dark':
+        this.applyDarkModeFilter(data);
+        break;
+      case 'darker':
+        this.applyDarkerModeFilter(data);
+        break;
+      case 'darkest':
+        this.applyDarkestModeFilter(data);
+        break;
+      case 'sepia':
+        this.applySepiaFilter(data);
+        break;
+      case 'blue-light':
+        this.applyBlueLightFilter(data);
+        break;
+    }
+
     // Apply brightness and contrast
-    context.filter = `brightness(${brightness}%) contrast(${contrast}%)`;
+    this.applyBrightnessContrast(data, brightness, contrast);
+    
+    // Put the modified image data back
+    context.putImageData(imageData, 0, 0);
   }
 
-  getThemeFillColor(theme) {
-    const themeColors = {
-      dark: 'white',
-      darker: '#ccc',
-      darkest: '#999'
-    };
-    return themeColors[theme] || 'white';
+  applyDarkModeFilter(data) {
+    for (let i = 0; i < data.length; i += 4) {
+      // Invert colors
+      data[i] = 255 - data[i];     // Red
+      data[i + 1] = 255 - data[i + 1]; // Green
+      data[i + 2] = 255 - data[i + 2]; // Blue
+      // Alpha remains unchanged
+    }
+  }
+
+  applyDarkerModeFilter(data) {
+    for (let i = 0; i < data.length; i += 4) {
+      // More aggressive inversion with reduced brightness
+      data[i] = Math.max(0, 255 - data[i] - 30);
+      data[i + 1] = Math.max(0, 255 - data[i + 1] - 30);
+      data[i + 2] = Math.max(0, 255 - data[i + 2] - 30);
+    }
+  }
+
+  applyDarkestModeFilter(data) {
+    for (let i = 0; i < data.length; i += 4) {
+      // Maximum inversion with significant brightness reduction
+      data[i] = Math.max(0, 255 - data[i] - 60);
+      data[i + 1] = Math.max(0, 255 - data[i + 1] - 60);
+      data[i + 2] = Math.max(0, 255 - data[i + 2] - 60);
+    }
+  }
+
+  applySepiaFilter(data) {
+    for (let i = 0; i < data.length; i += 4) {
+      const r = data[i];
+      const g = data[i + 1];
+      const b = data[i + 2];
+
+      data[i] = Math.min(255, (r * 0.393) + (g * 0.769) + (b * 0.189));
+      data[i + 1] = Math.min(255, (r * 0.349) + (g * 0.686) + (b * 0.168));
+      data[i + 2] = Math.min(255, (r * 0.272) + (g * 0.534) + (b * 0.131));
+    }
+  }
+
+  applyBlueLightFilter(data) {
+    for (let i = 0; i < data.length; i += 4) {
+      // Reduce blue light by decreasing blue channel
+      data[i + 2] = Math.max(0, data[i + 2] * 0.7);
+      // Slightly warm the image
+      data[i] = Math.min(255, data[i] * 1.1);
+      data[i + 1] = Math.min(255, data[i + 1] * 1.05);
+    }
+  }
+
+  applyBrightnessContrast(data, brightness, contrast) {
+    const brightnessFactor = brightness / 100;
+    const contrastFactor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+    for (let i = 0; i < data.length; i += 4) {
+      // Apply brightness
+      data[i] = Math.min(255, Math.max(0, data[i] * brightnessFactor));
+      data[i + 1] = Math.min(255, Math.max(0, data[i + 1] * brightnessFactor));
+      data[i + 2] = Math.min(255, Math.max(0, data[i + 2] * brightnessFactor));
+
+      // Apply contrast
+      data[i] = Math.min(255, Math.max(0, contrastFactor * (data[i] - 128) + 128));
+      data[i + 1] = Math.min(255, Math.max(0, contrastFactor * (data[i + 1] - 128) + 128));
+      data[i + 2] = Math.min(255, Math.max(0, contrastFactor * (data[i + 2] - 128) + 128));
+    }
   }
 
   getCacheKey(pdfDoc, pageNumber, settings) {

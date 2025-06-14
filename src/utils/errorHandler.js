@@ -11,7 +11,10 @@ export class ErrorHandler {
       'getPage': 'Failed to access PDF page. The file may be corrupted.',
       'render': 'Failed to render PDF page. Please try again.',
       'embedPng': 'Failed to process images. The PDF may contain unsupported content.',
-      'save': 'Failed to save the converted PDF. Please try again.'
+      'save': 'Failed to save the converted PDF. Please try again.',
+      'PDF library not loaded': 'Required libraries are still loading. Please wait a moment and try again.',
+      'NetworkError': 'Network connection failed. Please check your internet connection.',
+      'QuotaExceededError': 'Storage quota exceeded. Please clear some space and try again.'
     };
 
     for (const [key, message] of Object.entries(errorMessages)) {
@@ -29,5 +32,25 @@ export class ErrorHandler {
     } catch (error) {
       throw this.handlePDFError(error, context);
     }
+  }
+
+  static createRecoveryAction(error) {
+    const actions = [];
+    
+    if (error.message.includes('library not loaded')) {
+      actions.push('Refresh the page');
+      actions.push('Check your internet connection');
+    } else if (error.message.includes('corrupted')) {
+      actions.push('Try a different PDF file');
+      actions.push('Check if the file is valid');
+    } else if (error.message.includes('too large')) {
+      actions.push('Use a smaller PDF file');
+      actions.push('Compress the PDF before uploading');
+    } else {
+      actions.push('Try again');
+      actions.push('Refresh the page if the problem persists');
+    }
+    
+    return actions;
   }
 }
