@@ -39,7 +39,7 @@ class LitasDarkApp {
 
   async waitForLibraries() {
     let attempts = 0;
-    const maxAttempts = 200; // Increased attempts for better reliability
+    const maxAttempts = 600; // Increased attempts for better reliability
     
     while (attempts < maxAttempts) {
       if (window.PDFLib && window.pdfjsLib) {
