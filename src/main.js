@@ -13,6 +13,9 @@ import { PDFRenderer } from './core/pdfRenderer.js';
 import { PDFConverter } from './core/pdfConverter.js';
 import { showLoading, hideLoading, showError, showMessage } from '../messages.js';
 
+// Import ModernUI component
+import { ModernUIController } from './components/modernUI.js';
+
 class LitasDarkApp {
   constructor() {
     this.pdfLoader = new PDFLoader();
@@ -561,12 +564,103 @@ class LitasDarkApp {
   }
 }
 
-// Initialize application when DOM is loaded
+// Enhanced LitasDark App with Modern UI features
+class EnhancedLitasDarkApp extends LitasDarkApp {
+  constructor() {
+    super();
+    
+    // Initialize ModernUI controller
+    this.modernUI = new ModernUIController();
+    window.modernUI = this.modernUI;
+    
+    // Enhance accessibility
+    this.modernUI.enhanceAccessibility();
+    
+    console.log('Enhanced LitasDark application initialized with ModernUI');
+  }
+
+  setupEnhancedFileUpload() {
+    // Enhanced file upload functionality
+    const batchUpload = document.getElementById('batchUpload');
+    if (batchUpload) {
+      batchUpload.addEventListener('change', (e) => {
+        this.handleBatchUpload(e.target.files);
+      });
+    }
+  }
+
+  async handleBatchUpload(files) {
+    if (!files || files.length === 0) return;
+
+    const loadingElement = document.getElementById('loading');
+    
+    try {
+      showLoading(loadingElement);
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        this.validateFile(file);
+        
+        // Update progress
+        this.updateProgressBar(i + 1, files.length, `Processing file ${i + 1} of ${files.length}`);
+        
+        await this.pdfLoader.loadFromFile(file);
+        // Process each file as needed
+      }
+      
+      showMessage(`Successfully processed ${files.length} files`);
+      
+    } catch (error) {
+      showError(`Batch processing failed: ${error.message}`);
+    } finally {
+      hideLoading(loadingElement);
+    }
+  }
+
+  // Override downloadPDF with enhanced features
+  downloadPDF(pdfBytes, filename) {
+    try {
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(blob);
+      
+      // Create enhanced download experience
+      const downloadLink = document.createElement('a');
+      downloadLink.href = url;
+      downloadLink.download = filename;
+      downloadLink.style.display = 'none';
+      
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      
+      // Update all relevant download links
+      const downloadLinks = document.querySelectorAll('[id$="DownloadLink"]');
+      downloadLinks.forEach(link => {
+        if (link.id.includes(filename.split('.')[0]) || link.id === 'downloadLink') {
+          link.href = url;
+          link.download = filename;
+          link.style.display = 'inline-block';
+        }
+      });
+      
+      // Enhanced cleanup with better timing
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 10000);
+      
+    } catch (error) {
+      console.error('Enhanced download error:', error);
+      showError('Failed to download PDF. Please try again.');
+    }
+  }
+}
+
+// Initialize enhanced application when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
   // Wait for external libraries to load
   const initApp = () => {
     if (window.PDFLib && window.pdfjsLib) {
-      new LitasDarkApp();
+      new EnhancedLitasDarkApp();
     } else {
       setTimeout(initApp, 100);
     }
