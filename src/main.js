@@ -39,17 +39,17 @@ class LitasDarkApp {
 
   async waitForLibraries() {
     let attempts = 0;
-    const maxAttempts = 100; // Increased attempts
+    const maxAttempts = 200; // Increased attempts for better reliability
     
     while (attempts < maxAttempts) {
       if (window.PDFLib && window.pdfjsLib) {
         // Configure PDF.js worker
-        if (window.pdfjsWorkerSrc) {
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc = window.pdfjsWorkerSrc;
+        if (window.pdfjsLib && !window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.js';
         }
         return Promise.resolve();
       }
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 50));
       attempts++;
     }
     
@@ -61,7 +61,9 @@ class LitasDarkApp {
     const fileInput = document.getElementById('pdfUpload');
     if (fileInput) {
       fileInput.addEventListener('change', (e) => {
-        this.handleFileUpload(e.target.files[0]);
+        if (e.target.files && e.target.files[0]) {
+          this.handleFileUpload(e.target.files[0]);
+        }
       });
     }
 
@@ -248,7 +250,8 @@ class LitasDarkApp {
     if (!uploadZone || !fileInput) return;
 
     // Click handler
-    uploadZone.addEventListener('click', () => {
+    uploadZone.addEventListener('click', (e) => {
+      e.preventDefault();
       fileInput.click();
     });
 
@@ -283,7 +286,11 @@ class LitasDarkApp {
     uploadZone.addEventListener('drop', (e) => {
       const files = e.dataTransfer.files;
       if (files.length > 0 && files[0].type === 'application/pdf') {
-        fileInput.files = files;
+        // Manually set the files to the input
+        const dt = new DataTransfer();
+        dt.items.add(files[0]);
+        fileInput.files = dt.files;
+        
         this.handleFileUpload(files[0]);
       } else {
         showError('Please drop a valid PDF file');
@@ -298,13 +305,16 @@ class LitasDarkApp {
 
     if (batchUploadZone && batchUpload) {
       // Click handler
-      batchUploadZone.addEventListener('click', () => {
+      batchUploadZone.addEventListener('click', (e) => {
+        e.preventDefault();
         batchUpload.click();
       });
 
       // File selection handler
       batchUpload.addEventListener('change', (e) => {
-        this.handleBatchUpload(e.target.files);
+        if (e.target.files && e.target.files.length > 0) {
+          this.handleBatchUpload(e.target.files);
+        }
       });
 
       // Drag and drop handlers
@@ -330,6 +340,11 @@ class LitasDarkApp {
       batchUploadZone.addEventListener('drop', (e) => {
         const files = Array.from(e.dataTransfer.files).filter(file => file.type === 'application/pdf');
         if (files.length > 0) {
+          // Set files to the input
+          const dt = new DataTransfer();
+          files.forEach(file => dt.items.add(file));
+          batchUpload.files = dt.files;
+          
           this.handleBatchUpload(files);
         } else {
           showError('Please drop valid PDF files');
@@ -457,6 +472,7 @@ class LitasDarkApp {
       if (convertBtn) convertBtn.disabled = false;
       
     } catch (error) {
+      console.error('File upload error:', error);
       showError(error.message);
     } finally {
       hideLoading(loadingElement);
@@ -547,6 +563,7 @@ class LitasDarkApp {
           
           results.push({ file: file.name, success: true });
         } catch (error) {
+          console.error(`Error processing ${file.name}:`, error);
           results.push({ file: file.name, success: false, error: error.message });
         }
       }
@@ -567,6 +584,7 @@ class LitasDarkApp {
       showMessage(`Batch processing complete: ${results.filter(r => r.success).length} successful, ${results.filter(r => !r.success).length} failed`);
       
     } catch (error) {
+      console.error('Batch processing error:', error);
       showError(`Batch processing failed: ${error.message}`);
     } finally {
       hideLoading(loadingElement);
@@ -653,6 +671,7 @@ class LitasDarkApp {
       const canvas = await this.pdfRenderer.renderPage(pdfDoc, pageNumber, settings);
       this.displayPreview(canvas);
     } catch (error) {
+      console.error('Error rendering page:', error);
       showError(`Failed to render page ${pageNumber}`);
     }
   }
@@ -681,6 +700,7 @@ class LitasDarkApp {
       }
       
     } catch (error) {
+      console.error('Preview generation error:', error);
       showError(`Failed to generate preview: ${error.message}`);
     } finally {
       hideLoading(loadingElement);
@@ -719,6 +739,7 @@ class LitasDarkApp {
       }
       
     } catch (error) {
+      console.error('Conversion error:', error);
       showError(`Conversion failed: ${error.message}`);
     } finally {
       hideLoading(loadingElement);
@@ -758,6 +779,7 @@ class LitasDarkApp {
       
       showMessage('PDF split successfully!');
     } catch (error) {
+      console.error('Split PDF error:', error);
       showError(error.message);
     }
   }
@@ -793,6 +815,7 @@ class LitasDarkApp {
       
       showMessage('PDFs merged successfully!');
     } catch (error) {
+      console.error('Merge PDF error:', error);
       showError(`Failed to merge PDFs: ${error.message}`);
     } finally {
       hideLoading(loadingElement);
@@ -825,6 +848,7 @@ class LitasDarkApp {
       
       showMessage('Page rotated successfully!');
     } catch (error) {
+      console.error('Rotate page error:', error);
       showError(error.message);
     }
   }
@@ -861,6 +885,7 @@ class LitasDarkApp {
       infoContainer.style.display = 'block';
       showMessage('Document information displayed');
     } catch (error) {
+      console.error('Document info error:', error);
       showError('Failed to get document information');
     }
   }
@@ -886,6 +911,7 @@ class LitasDarkApp {
       this.downloadPDF(compressedBytes, 'compressed.pdf');
       showMessage('PDF compressed successfully!');
     } catch (error) {
+      console.error('Compress PDF error:', error);
       showError(`Failed to compress PDF: ${error.message}`);
     } finally {
       hideLoading(loadingElement);
@@ -916,6 +942,7 @@ class LitasDarkApp {
       this.downloadPDF(cleanedBytes, 'no_metadata.pdf');
       showMessage('Metadata removed successfully!');
     } catch (error) {
+      console.error('Remove metadata error:', error);
       showError(`Failed to remove metadata: ${error.message}`);
     } finally {
       hideLoading(loadingElement);
@@ -959,6 +986,7 @@ class LitasDarkApp {
       this.downloadPDF(watermarkedBytes, 'watermarked.pdf');
       showMessage('Watermark added successfully!');
     } catch (error) {
+      console.error('Add watermark error:', error);
       showError(`Failed to add watermark: ${error.message}`);
     } finally {
       hideLoading(loadingElement);
