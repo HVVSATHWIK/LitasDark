@@ -44,36 +44,42 @@
     <header>
         <h1>LitasDark: Advanced PDF Converter</h1>
         <p>Transform your PDFs with dark mode, OCR, batch processing & more</p>
-        <img src="/pdfdark.jpg" alt="LitasDark Logo">
+        <img src="/pdfdark.jpg" alt="LitasDark Logo" id="logo">
     </header>
     
     <!-- Main Content -->
     <main id="main-content" role="main">
         <!-- Quick Start Card -->
-        <div class="card mb-8">
+        <div class="card">
             <div class="card-header">
                 <h2 class="card-title">Quick Start</h2>
                 <p class="card-description">Upload a PDF and convert it to dark mode in seconds</p>
             </div>
             <div class="card-content">
-                <div class="grid md:grid-cols-2">
-                    <!-- Upload Section -->
-                    <div>
-                        <label class="form-label" for="pdfUpload">Upload PDF File</label>
-                        <input type="file" id="pdfUpload" accept="application/pdf,.pdf" aria-label="Upload PDF file" class="form-input">
-                        <p class="text-sm" style="color: #999; margin-top: 0.5rem;">Supports files up to 50MB</p>
+                <div class="upload-section">
+                    <!-- Enhanced Upload Zone -->
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-icon">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                      d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                            </svg>
+                        </div>
+                        <div class="upload-text">Click to upload or drag and drop</div>
+                        <div class="upload-subtext">PDF files up to 50MB</div>
+                        <input type="file" id="pdfUpload" accept="application/pdf,.pdf" aria-label="Upload PDF file" style="display: none;">
                     </div>
                     
                     <!-- Quick Actions -->
-                    <div class="space-y-3">
-                        <button id="generatePreviewButton" class="btn w-full" disabled>
+                    <div class="action-buttons">
+                        <button id="generatePreviewButton" class="btn btn-primary" disabled>
                             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                             </svg>
                             Generate Preview
                         </button>
-                        <button id="convertButton" class="btn w-full" disabled>
+                        <button id="convertButton" class="btn btn-primary" disabled>
                             <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
                             </svg>
@@ -85,13 +91,13 @@
         </div>
 
         <!-- Theme Settings Card -->
-        <div class="card mb-8">
+        <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Theme Settings</h3>
                 <p class="card-description">Customize the dark mode appearance</p>
             </div>
             <div class="card-content">
-                <div class="grid md:grid-cols-3">
+                <div class="theme-grid">
                     <div class="form-group">
                         <label class="form-label" for="themeSelect">Theme Style</label>
                         <select id="themeSelect" class="form-input" aria-label="Theme Selection">
@@ -105,36 +111,36 @@
                     
                     <div class="form-group">
                         <label class="form-label" for="brightness">
-                            Brightness: <span id="brightnessValue" class="font-medium">100</span>%
+                            Brightness: <span id="brightnessValue" class="value-display">100</span>%
                         </label>
                         <input type="range" id="brightness" min="50" max="150" value="100" 
-                               class="form-input" aria-label="Brightness adjustment">
+                               class="form-range" aria-label="Brightness adjustment">
                     </div>
                     
                     <div class="form-group">
                         <label class="form-label" for="contrast">
-                            Contrast: <span id="contrastValue" class="font-medium">100</span>%
+                            Contrast: <span id="contrastValue" class="value-display">100</span>%
                         </label>
                         <input type="range" id="contrast" min="50" max="150" value="100" 
-                               class="form-input" aria-label="Contrast adjustment">
+                               class="form-range" aria-label="Contrast adjustment">
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Preview Section -->
-        <div id="preview" class="card mb-8">
+        <div id="preview" class="card preview-card">
             <div class="card-header">
                 <h3 class="card-title">Preview</h3>
-                <div class="flex items-center gap-2">
-                    <button id="zoomOut" class="btn-secondary" aria-label="Zoom out">−</button>
-                    <span id="zoomLevel" class="text-sm font-medium">100%</span>
-                    <button id="zoomIn" class="btn-secondary" aria-label="Zoom in">+</button>
-                    <button id="resetZoom" class="btn-secondary" aria-label="Reset zoom">Reset</button>
+                <div class="zoom-controls">
+                    <button id="zoomOut" class="btn btn-secondary btn-sm" aria-label="Zoom out">−</button>
+                    <span id="zoomLevel" class="zoom-level">100%</span>
+                    <button id="zoomIn" class="btn btn-secondary btn-sm" aria-label="Zoom in">+</button>
+                    <button id="resetZoom" class="btn btn-secondary btn-sm" aria-label="Reset zoom">Reset</button>
                 </div>
             </div>
             <div class="card-content">
-                <div id="thumbnails" class="flex gap-2 mb-4" role="list" aria-label="Page thumbnails"></div>
+                <div id="thumbnails" class="thumbnails-container" role="list" aria-label="Page thumbnails"></div>
                 <div class="preview-container">
                     <canvas id="previewCanvas" aria-label="PDF Preview"></canvas>
                 </div>
@@ -142,21 +148,21 @@
         </div>
 
         <!-- Download Section -->
-        <div id="downloadSection" class="card mb-8">
-            <div class="card-content text-center">
-                <div class="mb-4">
-                    <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #4caf50; margin: 0 auto 1rem;">
+        <div id="downloadSection" class="card download-card">
+            <div class="card-content">
+                <div class="download-content">
+                    <svg width="64" height="64" fill="none" stroke="currentColor" viewBox="0 0 24 24" class="success-icon">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
-                    <h3 class="text-xl font-semibold mb-2">Conversion Complete!</h3>
-                    <p style="color: #999;">Your PDF has been successfully converted to dark mode.</p>
+                    <h3>Conversion Complete!</h3>
+                    <p>Your PDF has been successfully converted to dark mode.</p>
+                    <a id="downloadLink" href="#" download="dark-mode.pdf" class="btn btn-primary btn-lg">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Download Converted PDF
+                    </a>
                 </div>
-                <a id="downloadLink" href="#" download="dark-mode.pdf" class="btn" style="display: none;">
-                    <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    Download Converted PDF
-                </a>
             </div>
         </div>
 
@@ -168,7 +174,7 @@
             </div>
             <div class="card-content">
                 <!-- Tab Navigation -->
-                <nav role="tablist" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; background: rgba(255,255,255,0.05); padding: 0.25rem; border-radius: 8px;">
+                <nav class="tab-navigation" role="tablist">
                     <button class="tab-button active" data-tab="operations" role="tab" aria-selected="true">
                         PDF Operations
                     </button>
@@ -182,11 +188,11 @@
 
                 <!-- Tab Content -->
                 <div id="operations" class="tab-content active" role="tabpanel">
-                    <div class="grid md:grid-cols-3">
+                    <div class="operations-grid">
                         <!-- Split PDF -->
-                        <div style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
-                            <h4 class="font-medium mb-3">Split PDF</h4>
-                            <div class="space-y-3">
+                        <div class="operation-card">
+                            <h4>Split PDF</h4>
+                            <div class="operation-content">
                                 <div class="form-group">
                                     <label class="form-label" for="startPage">Start Page</label>
                                     <input type="number" id="startPage" min="1" class="form-input" placeholder="1">
@@ -195,26 +201,28 @@
                                     <label class="form-label" for="endPage">End Page</label>
                                     <input type="number" id="endPage" min="1" class="form-input" placeholder="10">
                                 </div>
-                                <button id="splitButton" class="btn-secondary w-full">Split PDF</button>
+                                <button id="splitButton" class="btn btn-secondary btn-full">Split PDF</button>
+                                <a id="splitDownloadLink" href="#" download="split_pdf.pdf" class="download-link">Download Split PDF</a>
                             </div>
                         </div>
 
                         <!-- Merge PDFs -->
-                        <div style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
-                            <h4 class="font-medium mb-3">Merge PDFs</h4>
-                            <div class="space-y-3">
+                        <div class="operation-card">
+                            <h4>Merge PDFs</h4>
+                            <div class="operation-content">
                                 <div class="form-group">
                                     <label class="form-label" for="pdfFiles">Select PDFs</label>
                                     <input type="file" id="pdfFiles" accept="application/pdf,.pdf" multiple class="form-input">
                                 </div>
-                                <button id="mergeButton" class="btn-secondary w-full">Merge PDFs</button>
+                                <button id="mergeButton" class="btn btn-secondary btn-full">Merge PDFs</button>
+                                <a id="mergeDownloadLink" href="#" download="merged_pdf.pdf" class="download-link">Download Merged PDF</a>
                             </div>
                         </div>
 
                         <!-- Rotate Page -->
-                        <div style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
-                            <h4 class="font-medium mb-3">Rotate Page</h4>
-                            <div class="space-y-3">
+                        <div class="operation-card">
+                            <h4>Rotate Page</h4>
+                            <div class="operation-content">
                                 <div class="form-group">
                                     <label class="form-label" for="rotatePageNumber">Page Number</label>
                                     <input type="number" id="rotatePageNumber" min="1" class="form-input" placeholder="1">
@@ -227,62 +235,124 @@
                                         <option value="270">270° Clockwise</option>
                                     </select>
                                 </div>
-                                <button id="rotateButton" class="btn-secondary w-full">Rotate Page</button>
+                                <button id="rotateButton" class="btn btn-secondary btn-full">Rotate Page</button>
+                                <a id="rotateDownloadLink" href="#" download="rotated_pdf.pdf" class="download-link">Download Rotated PDF</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="batch" class="tab-content" role="tabpanel" style="display: none;">
-                    <div class="space-y-4">
-                        <div class="form-group">
+                <div id="batch" class="tab-content" role="tabpanel">
+                    <div class="batch-content">
+                        <div class="batch-upload">
                             <label class="form-label" for="batchUpload">Upload Multiple PDFs</label>
-                            <input type="file" id="batchUpload" accept="application/pdf,.pdf" multiple class="form-input">
+                            <div class="batch-upload-zone" id="batchUploadZone">
+                                <div class="upload-icon">
+                                    <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                              d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                    </svg>
+                                </div>
+                                <div class="upload-text">Drop multiple PDFs here or click to select</div>
+                                <input type="file" id="batchUpload" accept="application/pdf,.pdf" multiple style="display: none;">
+                            </div>
                         </div>
                         
-                        <div class="grid md:grid-cols-2">
-                            <div class="space-y-4">
-                                <h4 class="font-medium">Batch Operations</h4>
-                                <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <input type="checkbox" id="batchDarkMode">
-                                    <span>Convert to Dark Mode</span>
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <input type="checkbox" id="batchCompress">
-                                    <span>Compress PDFs</span>
-                                </label>
+                        <div class="batch-settings">
+                            <div class="settings-section">
+                                <h4>Batch Operations</h4>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="batchDarkMode" checked>
+                                        <span class="checkmark"></span>
+                                        Convert to Dark Mode
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="batchCompress">
+                                        <span class="checkmark"></span>
+                                        Compress PDFs
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="batchRemoveMetadata">
+                                        <span class="checkmark"></span>
+                                        Remove Metadata
+                                    </label>
+                                </div>
                             </div>
                             
-                            <div class="space-y-4">
-                                <h4 class="font-medium">Watermark Settings</h4>
-                                <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                    <input type="checkbox" id="batchWatermark">
-                                    <span>Add Watermark</span>
-                                </label>
+                            <div class="settings-section">
+                                <h4>Watermark Settings</h4>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="batchWatermark">
+                                        <span class="checkmark"></span>
+                                        Add Watermark
+                                    </label>
+                                </div>
                                 <input type="text" id="batchWatermarkText" placeholder="Watermark text" class="form-input">
                             </div>
                         </div>
                         
-                        <button id="startBatchButton" class="btn">Start Batch Processing</button>
-                        <div id="batchStatus"></div>
+                        <div class="batch-actions">
+                            <button id="startBatchButton" class="btn btn-primary btn-lg" disabled>
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                                Start Batch Processing
+                            </button>
+                        </div>
+                        
+                        <div id="batchStatus" class="batch-status"></div>
+                        <div id="batchResults" class="batch-results"></div>
                     </div>
                 </div>
 
-                <div id="tools" class="tab-content" role="tabpanel" style="display: none;">
-                    <div class="grid md:grid-cols-2">
+                <div id="tools" class="tab-content" role="tabpanel">
+                    <div class="tools-grid">
                         <!-- Document Info -->
-                        <div style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
-                            <h4 class="font-medium mb-3">Document Information</h4>
-                            <button id="showInfoButton" class="btn-secondary w-full mb-3">Show Info</button>
-                            <div id="documentInfo"></div>
+                        <div class="tool-card">
+                            <h4>Document Information</h4>
+                            <div class="tool-content">
+                                <button id="showInfoButton" class="btn btn-secondary btn-full">Show Info</button>
+                                <div id="documentInfo" class="document-info"></div>
+                            </div>
                         </div>
 
                         <!-- Compression -->
-                        <div style="padding: 1rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px;">
-                            <h4 class="font-medium mb-3">Optimize PDF</h4>
-                            <div class="space-y-2">
-                                <button id="compressButton" class="btn-secondary w-full">Compress PDF</button>
-                                <button id="removeMetadataButton" class="btn-secondary w-full">Remove Metadata</button>
+                        <div class="tool-card">
+                            <h4>Optimize PDF</h4>
+                            <div class="tool-content">
+                                <button id="compressButton" class="btn btn-secondary btn-full">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Compress PDF
+                                </button>
+                                <button id="removeMetadataButton" class="btn btn-secondary btn-full">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                    </svg>
+                                    Remove Metadata
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Watermark -->
+                        <div class="tool-card">
+                            <h4>Add Watermark</h4>
+                            <div class="tool-content">
+                                <input type="text" id="watermarkText" placeholder="Watermark text" class="form-input">
+                                <div class="watermark-settings">
+                                    <div class="form-group">
+                                        <label class="form-label">Opacity: <span id="watermarkOpacityValue">30</span>%</label>
+                                        <input type="range" id="watermarkOpacity" min="10" max="100" value="30" class="form-range">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="form-label">Rotation: <span id="watermarkRotationValue">45</span>°</label>
+                                        <input type="range" id="watermarkRotation" min="0" max="360" value="45" class="form-range">
+                                    </div>
+                                </div>
+                                <button id="addWatermarkButton" class="btn btn-secondary btn-full">Add Watermark</button>
                             </div>
                         </div>
                     </div>
@@ -292,16 +362,16 @@
     </main>
     
     <!-- Loading Indicator -->
-    <div id="loading" role="status" aria-live="polite">
+    <div id="loading" class="loading-overlay" role="status" aria-live="polite">
         <div class="loading-content">
             <div class="spinner"></div>
-            <p id="loadingMessage" class="font-medium">Processing...</p>
-            <p id="loadingProgress" class="text-sm" style="color: #999;"></p>
+            <p id="loadingMessage" class="loading-message">Processing...</p>
+            <p id="loadingProgress" class="loading-progress"></p>
         </div>
     </div>
     
     <!-- Back to Top Button -->
-    <button id="backToTop" aria-label="Back to Top">
+    <button id="backToTop" class="back-to-top" aria-label="Back to Top">
         <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
         </svg>
