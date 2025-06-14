@@ -2,11 +2,6 @@
  * LitasDark PDF Converter - Enhanced Main Application
  */
 
-// Configure PDF.js worker source
-if (typeof window !== 'undefined' && window.pdfjsLib) {
-  window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.js';
-}
-
 // Import core modules
 import { PDFLoader } from './core/pdfLoader.js';
 import { PDFRenderer } from './core/pdfRenderer.js';
@@ -35,6 +30,7 @@ class LitasDarkApp {
       this.setupUI();
       
       console.log('LitasDark application initialized successfully');
+      showMessage('Application ready! Upload a PDF to get started.');
     }).catch(error => {
       console.error('Failed to initialize application:', error);
       showError('Failed to load required libraries. Please refresh the page.');
@@ -43,10 +39,14 @@ class LitasDarkApp {
 
   async waitForLibraries() {
     let attempts = 0;
-    const maxAttempts = 50;
+    const maxAttempts = 100; // Increased attempts
     
     while (attempts < maxAttempts) {
       if (window.PDFLib && window.pdfjsLib) {
+        // Configure PDF.js worker
+        if (window.pdfjsWorkerSrc) {
+          window.pdfjsLib.GlobalWorkerOptions.workerSrc = window.pdfjsWorkerSrc;
+        }
         return Promise.resolve();
       }
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -420,6 +420,7 @@ class LitasDarkApp {
         });
         tabContents.forEach(content => {
           content.classList.remove('active');
+          content.style.display = 'none';
         });
         
         // Add active class to clicked tab and corresponding content
@@ -429,6 +430,7 @@ class LitasDarkApp {
         const targetContent = document.getElementById(targetTab);
         if (targetContent) {
           targetContent.classList.add('active');
+          targetContent.style.display = 'block';
         }
       });
     });
