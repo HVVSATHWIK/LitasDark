@@ -5,29 +5,22 @@ module.exports = {
     node: true
   },
   extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended'
+    'eslint:recommended'
   ],
-  parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2022,
     sourceType: 'module'
   },
-  plugins: [
-    '@typescript-eslint'
-  ],
+  globals: {
+    particlesJS: 'readonly'
+  },
   rules: {
     'no-console': 'warn',
     'no-debugger': 'error',
-    'no-unused-vars': 'off',
-    '@typescript-eslint/no-unused-vars': ['error', { 
+    'no-unused-vars': ['error', { 
       argsIgnorePattern: '^_',
       varsIgnorePattern: '^_'
     }],
-    '@typescript-eslint/no-explicit-any': 'warn',
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/explicit-module-boundary-types': 'off',
-    '@typescript-eslint/no-non-null-assertion': 'warn',
     'prefer-const': 'error',
     'no-var': 'error',
     'object-shorthand': 'error',
@@ -43,6 +36,7 @@ module.exports = {
     'dist/',
     'node_modules/',
     '*.config.js',
-    'public/sw.js'
+    'public/sw.js',
+    'src/test/**/*.ts'
   ]
 };

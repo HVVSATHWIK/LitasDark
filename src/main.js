@@ -2,14 +2,62 @@
  * LitasDark PDF Converter - Enhanced Main Application
  */
 
+// Import PDF.js
+import * as pdfjsLib from 'pdfjs-dist';
+
 // Import core modules
 import { PDFLoader } from './core/pdfLoader.js';
 import { PDFRenderer } from './core/pdfRenderer.js';
 import { PDFConverter } from './core/pdfConverter.js';
+import { StateManager } from './core/stateManager.js';
+import { ErrorHandler } from './utils/errorHandler.js';
+import { PerformanceMonitor } from './utils/performanceMonitor.js';
 import { showLoading, hideLoading, showError, showMessage } from '../messages.js';
+
+// Configure PDF.js worker with CDN fallback
+const configureWorker = () => {
+  try {
+    // Try to use local worker first
+    pdfjsLib.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.js', import.meta.url).href;
+  } catch (error) {
+    // Fallback to CDN worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.js';
+  }
+};
+
+configureWorker();
+
+// Make libraries globally available for compatibility
+window.pdfjsLib = pdfjsLib;
+
+// Load PDF-lib and particles.js dynamically
+async function loadExternalLibraries() {
+  try {
+    // Load PDF-lib
+    const PDFLibModule = await import('pdf-lib');
+    window.PDFLib = PDFLibModule;
+    
+    // Load particles.js if available
+    try {
+      const _particlesModule = await import('https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js');
+      console.log('Particles.js loaded successfully');
+    } catch (error) {
+      console.warn('Particles.js failed to load, continuing without particle effects');
+      // Create a mock function to prevent errors
+      window.particlesJS = () => console.log('Particles.js not available');
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Failed to load external libraries:', error);
+    throw new Error('Required libraries failed to load. Please refresh the page.');
+  }
+}
 
 class LitasDarkApp {
   constructor() {
+    this.stateManager = new StateManager();
+    this.performanceMonitor = PerformanceMonitor;
     this.pdfLoader = new PDFLoader();
     this.pdfRenderer = new PDFRenderer();
     this.pdfConverter = new PDFConverter(this.pdfRenderer);
@@ -20,36 +68,47 @@ class LitasDarkApp {
     this.initializeApp();
   }
 
-  initializeApp() {
-    // Wait for libraries to load
-    this.waitForLibraries().then(() => {
+  async initializeApp() {
+    try {
+      // Start performance monitoring
+      this.performanceMonitor.startMonitoring();
+      
+      // Load external libraries first
+      await loadExternalLibraries();
+      
+      // Wait for libraries to be fully available
+      await this.waitForLibraries();
+      
+      // Initialize application components
       this.setupEventListeners();
       this.setupProgressHandling();
       this.setupFileUpload();
       this.setupBatchProcessing();
       this.setupUI();
       
+      // Load saved state
+      this.stateManager.loadFromStorage();
+      
       console.log('LitasDark application initialized successfully');
       showMessage('Application ready! Upload a PDF to get started.');
-    }).catch(error => {
+      
+    } catch (error) {
       console.error('Failed to initialize application:', error);
-      showError('Failed to load required libraries. Please refresh the page.');
-    });
+      const errorInfo = ErrorHandler.handleError(error, 'Application Initialization');
+      showError(ErrorHandler.createUserMessage(errorInfo));
+    }
   }
 
   async waitForLibraries() {
     let attempts = 0;
-    const maxAttempts = 600; // Increased attempts for better reliability
+    const maxAttempts = 100; // Reduced attempts since we're loading locally
     
     while (attempts < maxAttempts) {
       if (window.PDFLib && window.pdfjsLib) {
-        // Configure PDF.js worker
-        if (window.pdfjsLib && !window.pdfjsLib.GlobalWorkerOptions.workerSrc) {
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.3.136/pdf.worker.min.js';
-        }
+        console.log('All required libraries loaded successfully');
         return Promise.resolve();
       }
-      await new Promise(resolve => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 100));
       attempts++;
     }
     
@@ -172,7 +231,7 @@ class LitasDarkApp {
   setupRangeInputs() {
     const rangeInputs = document.querySelectorAll('input[type="range"]');
     rangeInputs.forEach(input => {
-      const valueDisplay = document.getElementById(input.id + 'Value');
+      const valueDisplay = document.getElementById(`${input.id}Value`);
       if (valueDisplay) {
         // Set initial value
         valueDisplay.textContent = input.value;
@@ -367,7 +426,7 @@ class LitasDarkApp {
 
   setupUI() {
     // Initialize particles if available
-    if (typeof particlesJS !== 'undefined') {
+    if (typeof window.particlesJS !== 'undefined') {
       particlesJS('particles-js', {
         particles: {
           number: { value: 50, density: { enable: true, value_area: 800 } },
@@ -376,19 +435,19 @@ class LitasDarkApp {
           opacity: {
             value: 0.4,
             random: true,
-            anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false },
+            anim: { enable: true, speed: 1, opacity_min: 0.1, sync: false }
           },
           size: {
             value: 3,
             random: true,
-            anim: { enable: true, speed: 20, size_min: 0.1, sync: false },
+            anim: { enable: true, speed: 20, size_min: 0.1, sync: false }
           },
           line_linked: {
             enable: true,
             distance: 150,
             color: '#ffffff',
             opacity: 0.2,
-            width: 1,
+            width: 1
           },
           move: {
             enable: true,
@@ -397,22 +456,22 @@ class LitasDarkApp {
             random: false,
             straight: false,
             out_mode: 'out',
-            bounce: false,
-          },
+            bounce: false
+          }
         },
         interactivity: {
           detect_on: 'canvas',
           events: {
             onhover: { enable: true, mode: 'repulse' },
             onclick: { enable: true, mode: 'push' },
-            resize: true,
+            resize: true
           },
           modes: {
             repulse: { distance: 100, duration: 0.4 },
-            push: { particles_nb: 2 },
-          },
+            push: { particles_nb: 2 }
+          }
         },
-        retina_detect: true,
+        retina_detect: true
       });
     }
 
@@ -455,13 +514,23 @@ class LitasDarkApp {
     if (!file) return;
 
     const loadingElement = document.getElementById('loading');
+    const measurement = this.performanceMonitor.startMeasurement('file-upload');
     
     try {
       this.validateFile(file);
+      this.stateManager.setLoading(true);
       showLoading(loadingElement);
       
       await this.pdfLoader.loadFromFile(file);
       await this.generateThumbnails();
+      
+      // Add to recent files
+      this.stateManager.addRecentFile({
+        id: Date.now().toString(),
+        name: file.name,
+        size: file.size,
+        lastModified: new Date(file.lastModified)
+      });
       
       showMessage('PDF loaded successfully! Generate a preview to see the dark mode effect.');
       
@@ -471,10 +540,15 @@ class LitasDarkApp {
       if (previewBtn) previewBtn.disabled = false;
       if (convertBtn) convertBtn.disabled = false;
       
+      measurement.end();
+      
     } catch (error) {
       console.error('File upload error:', error);
-      showError(error.message);
+      const errorInfo = ErrorHandler.handlePDFError(error, 'File Upload');
+      showError(ErrorHandler.createUserMessage(errorInfo));
+      measurement.end();
     } finally {
+      this.stateManager.setLoading(false);
       hideLoading(loadingElement);
     }
   }
@@ -683,9 +757,12 @@ class LitasDarkApp {
     }
 
     const loadingElement = document.getElementById('loading');
+    const measurement = this.performanceMonitor.startMeasurement('generate-preview');
     
     try {
+      this.stateManager.setLoading(true);
       showLoading(loadingElement);
+      
       const settings = this.getThemeSettings();
       const pdfDoc = this.pdfLoader.getCurrentDocument();
       
@@ -699,10 +776,16 @@ class LitasDarkApp {
         previewSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       
+      measurement.end();
+      showMessage('Preview generated successfully!');
+      
     } catch (error) {
       console.error('Preview generation error:', error);
-      showError(`Failed to generate preview: ${error.message}`);
+      const errorInfo = ErrorHandler.handlePDFError(error, 'Preview Generation');
+      showError(ErrorHandler.createUserMessage(errorInfo));
+      measurement.end();
     } finally {
+      this.stateManager.setLoading(false);
       hideLoading(loadingElement);
     }
   }
@@ -720,9 +803,12 @@ class LitasDarkApp {
     }
 
     const loadingElement = document.getElementById('loading');
+    const measurement = this.performanceMonitor.startMeasurement('convert-to-dark-mode');
     
     try {
+      this.stateManager.setLoading(true);
       showLoading(loadingElement);
+      
       const settings = this.getThemeSettings();
       const pdfDoc = this.pdfLoader.getCurrentDocument();
       
@@ -738,10 +824,15 @@ class LitasDarkApp {
         downloadSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
       
+      measurement.end();
+      
     } catch (error) {
       console.error('Conversion error:', error);
-      showError(`Conversion failed: ${error.message}`);
+      const errorInfo = ErrorHandler.handlePDFError(error, 'PDF Conversion');
+      showError(ErrorHandler.createUserMessage(errorInfo));
+      measurement.end();
     } finally {
+      this.stateManager.setLoading(false);
       hideLoading(loadingElement);
     }
   }
@@ -977,7 +1068,7 @@ class LitasDarkApp {
           y: height / 2,
           size: 50,
           color: window.PDFLib.rgb(0.5, 0.5, 0.5),
-          opacity: opacity,
+          opacity,
           rotate: window.PDFLib.degrees(rotation)
         });
       });

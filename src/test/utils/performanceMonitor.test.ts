@@ -32,9 +32,7 @@ describe('PerformanceMonitor', () => {
     expect(duration).toBeGreaterThan(5);
     expect(result).toBeUndefined();
     
-    const metrics = Perform
-
-anceMonitor.getMetrics('async_test');
+    const metrics = PerformanceMonitor.getMetrics('async_test');
     expect(metrics!.count).toBe(1);
   });
 

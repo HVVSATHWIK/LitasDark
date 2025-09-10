@@ -1,7 +1,10 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ErrorHandler } from '../../utils/errorHandler.js';
 
 describe('ErrorHandler', () => {
+  beforeEach(() => {
+    ErrorHandler.clearErrorLog();
+  });
   it('should handle PDF errors correctly', () => {
     const error = new Error('Invalid PDF structure');
     const errorInfo = ErrorHandler.handlePDFError(error, 'test context');
@@ -14,7 +17,7 @@ describe('ErrorHandler', () => {
   it('should create recovery actions', () => {
     const errorInfo = {
       code: 'PDF_ERROR',
-      message: 'Test error',
+      message: 'PDF Error: corrupted file',
       details: {},
       timestamp: new Date()
     };

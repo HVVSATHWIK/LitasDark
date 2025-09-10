@@ -41,7 +41,7 @@ export class PDFRenderer {
 
       await page.render({
         canvasContext: context,
-        viewport: viewport
+        viewport
       }).promise;
 
       this.applyThemeFilters(context, canvas.width, canvas.height, settings);
